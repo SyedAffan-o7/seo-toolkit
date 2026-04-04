@@ -20,9 +20,30 @@ export type AuditSnapshot = {
   keywordInMeta: boolean;
   keywordInUrl: boolean;
   keywordDensity: number;
+  keywordTokens: string[];
+  keywordVariations: string[];
+  keywordPresence: {
+    title: boolean;
+    meta: boolean;
+    h1: boolean;
+    h2: boolean;
+    body: boolean;
+  };
+  keywordFrequency: number;
   score: number;
   // NEW: Actual Google ranking position
   googlePosition: number | null;
+};
+
+export type KeywordComparison = {
+  primaryUsage: {
+    you: { title: boolean; meta: boolean; h1: boolean };
+    competitor: { title: boolean; meta: boolean; h1: boolean };
+  };
+  missingVariations: string[];
+  overlap: string[];
+  weakUsage: string[];
+  frequency: { you: number; competitor: number };
 };
 
 export type AuditSuggestion = {
@@ -54,4 +75,5 @@ export type AuditCompareResponse = {
     pagesWithSchema: number;
     avgInternalLinks: number;
   } | null;
+  keywordComparison: KeywordComparison;
 };

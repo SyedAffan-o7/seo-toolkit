@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { extractDomain, domainMatch, normalizeUrl } from "@/lib/utils";
+import { prisma } from "@/lib/db";
+import { AuditCompareResponse, AuditSnapshot, AuditSuggestion, KeywordComparison } from "@/types/audit";
 import { getSerpProvider } from "@/lib/serp/provider";
-import { extractDomain, domainMatch } from "@/lib/utils";
 
 const requestSchema = z.object({
   keyword: z.string().min(1, "Keyword is required"),
@@ -10,73 +12,86 @@ const requestSchema = z.object({
   device: z.enum(["desktop", "mobile"]).optional().default("desktop"),
 });
 
-export type AuditSnapshot = {
-  url: string;
-  title: string;
-  titleLength: number;   
-  h1: string;
-  metaDescription: string;
-  metaDescriptionLength: number;
-  canonical: string;
-  robotsMeta: string;
-  wordCount: number;
-  headingCounts: { h1: number; h2: number; h3: number; h4: number };
-  internalLinks: number;
-  externalLinks: number;
-  totalImages: number;
-  imagesWithAlt: number;
-  hasSchema: boolean;
-  schemaTypes: string[];
-  keywordInTitle: boolean;
-  keywordInH1: boolean;
-  keywordInMeta: boolean;
-  keywordInUrl: boolean;
-  keywordDensity: number;
-  score: number;
-  // NEW: Ranking data
-  googlePosition: number | null;
-  // NEW: Page speed data
-  pageSpeed?: {
-    performance: number;
-    accessibility: number;
-    seo: number;
-  };
+const STOPWORDS = new Set([
+  "the",
+  "is",
+  "at",
+  "which",
+  "on",
+  "and",
+  "a",
+  "an",
+  "of",
+  "for",
+  "to",
+  "in",
+  "with",
+  "by",
+  "from",
+  "this",
+  "that",
+  "it",
+  "as",
+  "be",
+  "or",
+  "are",
+  "was",
+  "were",
+  "but",
+  "if",
+]);
+
+const SIMPLE_SYNONYMS: Record<string, string[]> = {
+  buy: ["purchase"],
+  purchase: ["buy"],
+  cheap: ["budget"],
+  budget: ["cheap"],
 };
 
-export type AuditSuggestion = {
-  category: "critical" | "warning" | "info";
-  message: string;
-  priority: number; // 1-10, higher = fix first
-  action: string; // exact step to take
-  yourValue: string;
-  competitorValue: string;
-  impact: string; // why this matters for ranking
-};
+function stripSections(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, " ")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, " ")
+    .replace(/<head[\s\S]*?<\/head>/gi, " ");
+}
 
-export type AuditCompareResponse = {
-  keyword: string;
-  audits: [AuditSnapshot, AuditSnapshot];
-  suggestionsForFirst: AuditSuggestion[];
-  suggestionsForSecond: AuditSuggestion[];
-  // NEW: Actual ranking data
-  rankingComparison: {
-    yourPosition: number | null;
-    competitorPosition: number | null;
-    positionGap: number;
-    totalResults: number;
-  };
-  // NEW: Top 10 SERP analysis
-  top10Analysis: {
-    avgWordCount: number;
-    avgTitleLength: number;
-    pagesWithSchema: number;
-    avgInternalLinks: number;
-  } | null;
-};
+function htmlToText(html: string): string {
+  return stripSections(html).replace(/<[^>]+>/g, " ");
+}
+
+function tokenize(text: string): string[] {
+  return text
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length > 1 && !STOPWORDS.has(t));
+}
+
+function uniqueWords(tokens: string[]): string[] {
+  return Array.from(new Set(tokens));
+}
+
+function buildVariations(keyword: string): string[] {
+  const tokens = tokenize(keyword);
+  const variations = new Set<string>();
+  tokens.forEach((t) => {
+    variations.add(t);
+    if (t.endsWith("s")) variations.add(t.slice(0, -1));
+    else variations.add(`${t}s`);
+    (SIMPLE_SYNONYMS[t] || []).forEach((syn) => variations.add(syn));
+  });
+  return Array.from(variations);
+}
+
+function countMatches(haystack: string[], needles: string[]): number {
+  const set = new Set(haystack);
+  return needles.filter((n) => set.has(n)).length;
+}
 
 function extractTagContent(html: string, tag: string): string {
   const match = html.match(
-    new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i")
+    new RegExp(`<${tag}[^>]*>([\s\S]*?)<\/${tag}>`, "i")
   );
   return match?.[1]?.trim() || "";
 }
@@ -109,6 +124,17 @@ function extractCanonical(html: string): string {
 function extractFirstH1(html: string): string {
   const match = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
   return match?.[1]?.replace(/<[^>]+>/g, "").trim() || "";
+}
+
+function extractHeadings(html: string, tag: "h1" | "h2") {
+  const regex = new RegExp(`<${tag}[^>]*>([\s\S]*?)<\/${tag}>`, "gi");
+  const values: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = regex.exec(html))) {
+    const text = m[1]?.replace(/<[^>]+>/g, "").trim();
+    if (text) values.push(text);
+  }
+  return values;
 }
 
 function countHeadings(html: string) {
@@ -278,19 +304,37 @@ function buildAudit(
   keyword: string,
   googlePosition: number | null
 ): AuditSnapshot {
+  const cleanedHtml = stripSections(html);
   const title = extractTagContent(html, "title");
   const h1 = extractFirstH1(html);
+  const h2s = extractHeadings(html, "h2");
   const metaDescription = extractMetaContent(html, "description");
   const canonical = extractCanonical(html);
   const robotsMeta = extractMetaContent(html, "robots");
-  const wordCount = countWords(html);
+  const bodyText = htmlToText(cleanedHtml);
+  const wordCount = countWords(cleanedHtml);
   const headingCounts = countHeadings(html);
   const links = countLinks(html, url);
   const images = countImages(html);
   const hasSchema = hasSchemaOrg(html);
   const schemaTypes = extractSchemaTypes(html);
   const keywordLower = keyword.toLowerCase();
-  const keywordDensity = computeKeywordDensity(html, keyword);
+  const keywordDensity = computeKeywordDensity(cleanedHtml, keyword);
+
+  const bodyTokens = tokenize(bodyText);
+  const uniqueBodyTokens = uniqueWords(bodyTokens);
+  const keywordTokens = tokenize(keywordLower);
+  const keywordVariations = buildVariations(keywordLower);
+
+  const keywordPresence = {
+    title: tokenize(title).some((t) => keywordVariations.includes(t)),
+    meta: tokenize(metaDescription).some((t) => keywordVariations.includes(t)),
+    h1: tokenize(h1).some((t) => keywordVariations.includes(t)),
+    h2: h2s.some((h) => tokenize(h).some((t) => keywordVariations.includes(t))),
+    body: keywordVariations.some((t) => uniqueBodyTokens.includes(t)),
+  };
+
+  const keywordFrequency = bodyTokens.filter((t) => keywordVariations.includes(t)).length;
 
   const snapshot: AuditSnapshot = {
     url,
@@ -309,16 +353,52 @@ function buildAudit(
     imagesWithAlt: images.withAlt,
     hasSchema,
     schemaTypes,
-    keywordInTitle: title.toLowerCase().includes(keywordLower),
-    keywordInH1: h1.toLowerCase().includes(keywordLower),
-    keywordInMeta: metaDescription.toLowerCase().includes(keywordLower),
+    keywordInTitle: keywordPresence.title,
+    keywordInH1: keywordPresence.h1,
+    keywordInMeta: keywordPresence.meta,
     keywordInUrl: url.toLowerCase().includes(keywordLower.replace(/\s+/g, "-")),
     keywordDensity,
+    keywordTokens,
+    keywordVariations,
+    keywordPresence,
+    keywordFrequency,
     score: 0,
     googlePosition,
   };
   snapshot.score = computeScore(snapshot);
   return snapshot;
+}
+
+function buildKeywordComparison(a: AuditSnapshot, b: AuditSnapshot): KeywordComparison {
+  const missingVariations = b.keywordVariations.filter((v) => !a.keywordVariations.includes(v)).slice(0, 10);
+  const overlap = a.keywordVariations.filter((v) => b.keywordVariations.includes(v));
+  const weakUsage: string[] = [];
+  if (!a.keywordInTitle && b.keywordInTitle) weakUsage.push("Add keyword to title");
+  if (!a.keywordInH1 && b.keywordInH1) weakUsage.push("Add keyword to H1");
+  if (!a.keywordInMeta && b.keywordInMeta) weakUsage.push("Add keyword to meta description");
+  if (!a.keywordPresence?.h2 && b.keywordPresence?.h2) weakUsage.push("Add keyword to H2/subheadings");
+
+  return {
+    primaryUsage: {
+      you: {
+        title: a.keywordInTitle,
+        meta: a.keywordInMeta,
+        h1: a.keywordInH1,
+      },
+      competitor: {
+        title: b.keywordInTitle,
+        meta: b.keywordInMeta,
+        h1: b.keywordInH1,
+      },
+    },
+    missingVariations,
+    overlap,
+    weakUsage,
+    frequency: {
+      you: a.keywordFrequency,
+      competitor: b.keywordFrequency,
+    },
+  };
 }
 
 async function analyzeTop10(results: { url: string; title: string }[]) {
@@ -734,6 +814,9 @@ export async function POST(req: NextRequest) {
     const top10Results = serpResult.results.slice(0, 10);
     const top10Analysis = await analyzeTop10(top10Results);
 
+    // Compare keyword usage between your page and competitor
+    const keywordComparison = buildKeywordComparison(auditA, auditB);
+
     const response: AuditCompareResponse = {
       keyword,
       audits: [auditA, auditB],
@@ -746,6 +829,7 @@ export async function POST(req: NextRequest) {
         totalResults: serpResult.totalResults,
       },
       top10Analysis,
+      keywordComparison,
     };
 
     return NextResponse.json(response);
