@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { extractDomain, domainMatch, normalizeUrl } from "@/lib/utils";
-import { prisma } from "@/lib/db";
-import { AuditCompareResponse, AuditSnapshot, AuditSuggestion, KeywordComparison } from "@/types/audit";
+import { extractDomain, domainMatch } from "@/lib/utils";
 import { getSerpProvider } from "@/lib/serp/provider";
+import type { AuditCompareResponse, AuditSnapshot, AuditSuggestion, KeywordComparison } from "@/types/audit";
 
 const requestSchema = z.object({
   keyword: z.string().min(1, "Keyword is required"),
@@ -82,11 +81,6 @@ function buildVariations(keyword: string): string[] {
     (SIMPLE_SYNONYMS[t] || []).forEach((syn) => variations.add(syn));
   });
   return Array.from(variations);
-}
-
-function countMatches(haystack: string[], needles: string[]): number {
-  const set = new Set(haystack);
-  return needles.filter((n) => set.has(n)).length;
 }
 
 function extractTagContent(html: string, tag: string): string {
