@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DeviceType {
+  desktop
+  mobile
+}
+
+model Project {
+  id          String       @id @default(cuid())
+  name        String
+  domain      String
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  keywords     Keyword[]
+  competitors  Competitor[]
+  rankSnapshots RankSnapshot[]
+
+  @@unique([name, domain])
+  @@index([domain])
+}
+
+model Keyword {
+  id        String     @id @default(cuid())
+  projectId String
+  keyword   String
+  targetUrl String
+  geo       String     @default("us")
+  device    DeviceType @default(desktop)
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  project       Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  rankSnapshots RankSnapshot[]
+
+  @@unique([projectId, keyword, targetUrl, geo, device])
+  @@index([projectId, isActive])
+}
+
+model Competitor {
+  id        String   @id @default(cuid())
+  projectId String
+  domain    String
+  label     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project         Project                  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  snapshotEntries CompetitorRankSnapshot[]
+
+  @@unique([projectId, domain])
+  @@index([projectId])
+}
+
+model RankSnapshot {
+  id             String     @id @default(cuid())
+  projectId      String
+  keywordId      String
+  checkedAt      DateTime   @default(now())
+  targetPosition Int?
+  totalResults   Int?
+  serpFeatures   Json?
+  results        Json?
+  provider       String     @default("mock")
+
+  project     Project                  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  keyword     Keyword                  @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+  competitors CompetitorRankSnapshot[]
+
+  @@index([projectId, checkedAt])
+  @@index([keywordId, checkedAt])
+}
+
+model CompetitorRankSnapshot {
+  id           String   @id @default(cuid())
+  snapshotId   String
+  competitorId String
+  position     Int?
+  found        Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  snapshot   RankSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  competitor Competitor   @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+
+  @@unique([snapshotId, competitorId])
+  @@index([competitorId, createdAt])
+}
