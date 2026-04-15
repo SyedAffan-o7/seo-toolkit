@@ -8,10 +8,6 @@ import { LayoutDashboard, List, Plus, Globe, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 // Simple Tabs component if not available
-function SimpleTabs({ children }: { children: React.ReactNode }) {
-  return <div className="space-y-4">{children}</div>;
-}
-
 function SimpleTabsList({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return <div className={`flex gap-1 p-1 bg-gray-100 rounded-lg ${className}`}>{children}</div>;
 }

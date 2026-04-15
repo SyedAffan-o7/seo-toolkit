@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "projectId required" }, { status: 400 });
     }
 
-    const where: any = { projectId };
+    const where: { projectId: string; pageUrl?: string; isActive?: boolean } = { projectId };
     if (pageUrl) where.pageUrl = pageUrl;
     if (isActive !== null) where.isActive = isActive === "true";
 

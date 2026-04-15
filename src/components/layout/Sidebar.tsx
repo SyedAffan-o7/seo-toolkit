@@ -12,7 +12,6 @@ import {
   GitCompareArrows,
   Target,
   ChevronDown,
-  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

@@ -60,7 +60,7 @@ export default function PageKeywordDashboard({ projectId }: PageKeywordDashboard
         const withPositions = data.find((m: PageKeyword) => m.positions.length > 0);
         if (withPositions) setSelectedMapping(withPositions);
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to load data");
     } finally {
       setIsLoading(false);

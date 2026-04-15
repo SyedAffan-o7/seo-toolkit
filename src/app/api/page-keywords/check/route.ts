@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const { projectId, pageKeywordIds, checkAllActive } = parsed.data;
 
     // Build query
-    const where: any = { projectId };
+    const where: { projectId: string; id?: { in: string[] }; isActive?: boolean } = { projectId };
     if (pageKeywordIds && pageKeywordIds.length > 0) {
       where.id = { in: pageKeywordIds };
     } else if (checkAllActive) {
