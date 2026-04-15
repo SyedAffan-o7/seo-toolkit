@@ -78,7 +78,7 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       setMappings(data);
-    } catch (_error) {
+    } catch {
       toast.error("Failed to load page-keyword mappings");
     } finally {
       setIsLoading(false);
@@ -137,7 +137,7 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
       toast.success("Mapping updated");
       setEditingId(null);
       fetchMappings();
-    } catch (_error) {
+    } catch {
       toast.error("Failed to update mapping");
     }
   };
@@ -154,7 +154,7 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
 
       toast.success("Mapping deleted");
       fetchMappings();
-    } catch (_error) {
+    } catch {
       toast.error("Failed to delete mapping");
     }
   };
@@ -181,7 +181,7 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
       const data = await res.json();
       toast.success(`Checked ${data.checked} mappings, ${data.failed} failed`);
       fetchMappings();
-    } catch (_error) {
+    } catch {
       toast.error("Failed to run bulk check");
     } finally {
       setIsChecking(false);
@@ -230,7 +230,7 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
         console.warn("Import errors:", data.errors);
       }
       fetchMappings();
-    } catch (_error) {
+    } catch {
       toast.error("Failed to import CSV");
     } finally {
       setIsImporting(false);
