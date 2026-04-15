@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   Search,
   BarChart3,
@@ -9,6 +10,9 @@ import {
   Settings,
   LayoutDashboard,
   GitCompareArrows,
+  Target,
+  ChevronDown,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +26,18 @@ const navigation = [
     name: "Rank Checker",
     href: "/rank-checker",
     icon: Search,
+    children: [
+      {
+        name: "Quick Check",
+        href: "/rank-checker",
+        icon: Search,
+      },
+      {
+        name: "Page Rankings",
+        href: "/rank-checker/pages",
+        icon: Target,
+      },
+    ],
   },
   {
     name: "Compare URLs",
@@ -45,6 +61,115 @@ const navigation = [
   },
 ];
 
+interface NavItem {
+  name: string;
+  href: string;
+  icon: React.ElementType;
+  children?: NavItem[];
+}
+
+function NavItemComponent({ item, pathname }: { item: NavItem; pathname: string }) {
+  const [isExpanded, setIsExpanded] = useState<boolean>(
+    pathname.startsWith(item.href) && !!item.children
+  );
+  const hasChildren = item.children && item.children.length > 0;
+  
+  const isActive = pathname === item.href || 
+    (item.href !== "/" && pathname.startsWith(item.href));
+  
+  const isChildActive = hasChildren && item.children?.some(
+    child => pathname === child.href || pathname.startsWith(child.href)
+  );
+
+  if (hasChildren) {
+    return (
+      <div className="space-y-1">
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className={cn(
+            "w-full group flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+            isActive || isChildActive
+              ? "bg-brand-50 text-brand-700"
+              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+          )}
+        >
+          <div className="flex items-center gap-3">
+            <item.icon
+              className={cn(
+                "h-5 w-5 shrink-0",
+                isActive || isChildActive
+                  ? "text-brand-600"
+                  : "text-gray-400 group-hover:text-gray-600"
+              )}
+            />
+            {item.name}
+          </div>
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 shrink-0 transition-transform",
+              isExpanded ? "rotate-180" : "",
+              isActive || isChildActive
+                ? "text-brand-600"
+                : "text-gray-400"
+            )}
+          />
+        </button>
+        {isExpanded && (
+          <div className="ml-4 pl-4 border-l border-gray-200 space-y-1">
+            {item.children?.map((child) => {
+              const isChildActive = pathname === child.href || pathname.startsWith(child.href);
+              return (
+                <Link
+                  key={child.name}
+                  href={child.href}
+                  className={cn(
+                    "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    isChildActive
+                      ? "bg-brand-50 text-brand-700"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  )}
+                >
+                  <child.icon
+                    className={cn(
+                      "h-4 w-4 shrink-0",
+                      isChildActive
+                        ? "text-brand-600"
+                        : "text-gray-400 group-hover:text-gray-600"
+                    )}
+                  />
+                  {child.name}
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={item.href}
+      className={cn(
+        "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+        isActive
+          ? "bg-brand-50 text-brand-700"
+          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+      )}
+    >
+      <item.icon
+        className={cn(
+          "h-5 w-5 shrink-0",
+          isActive
+            ? "text-brand-600"
+            : "text-gray-400 group-hover:text-gray-600"
+        )}
+      />
+      {item.name}
+    </Link>
+  );
+}
+
 export default function Sidebar() {
   const pathname = usePathname();
 
@@ -60,33 +185,9 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {navigation.map((item) => {
-          const isActive =
-            pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(item.href));
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={cn(
-                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-brand-50 text-brand-700"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              )}
-            >
-              <item.icon
-                className={cn(
-                  "h-5 w-5 shrink-0",
-                  isActive
-                    ? "text-brand-600"
-                    : "text-gray-400 group-hover:text-gray-600"
-                )}
-              />
-              {item.name}
-            </Link>
-          );
-        })}
+        {navigation.map((item) => (
+          <NavItemComponent key={item.name} item={item as NavItem} pathname={pathname} />
+        ))}
       </nav>
     </aside>
   );

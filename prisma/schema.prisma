@@ -20,9 +20,10 @@ model Project {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  keywords     Keyword[]
-  competitors  Competitor[]
-  rankSnapshots RankSnapshot[]
+  keywords      Keyword[]
+  competitors   Competitor[]
+  rankSnapshots   RankSnapshot[]
+  pageKeywords  PageKeyword[]
 
   @@unique([name, domain])
   @@index([domain])
@@ -93,4 +94,39 @@ model CompetitorRankSnapshot {
 
   @@unique([snapshotId, competitorId])
   @@index([competitorId, createdAt])
+}
+
+model PageKeyword {
+  id           String     @id @default(cuid())
+  projectId    String
+  pageUrl      String
+  keyword      String
+  geo          String     @default("us")
+  device       DeviceType @default(desktop)
+  isActive     Boolean    @default(true)
+  notes        String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  project   Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  positions PageKeywordPosition[]
+
+  @@unique([projectId, pageUrl, keyword, geo, device])
+  @@index([projectId, isActive])
+  @@index([pageUrl])
+}
+
+model PageKeywordPosition {
+  id            String   @id @default(cuid())
+  pageKeywordId String
+  position      Int?
+  totalResults  Int?
+  serpFeatures  Json?
+  topResults    Json?
+  checkedAt     DateTime @default(now())
+
+  pageKeyword PageKeyword @relation(fields: [pageKeywordId], references: [id], onDelete: Cascade)
+
+  @@index([pageKeywordId, checkedAt])
+  @@index([checkedAt])
 }

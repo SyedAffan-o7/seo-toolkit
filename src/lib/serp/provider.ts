@@ -7,6 +7,7 @@ export interface SerpProviderOptions {
   geo?: string;
   device?: "desktop" | "mobile";
   numResults?: number;
+  domainOverride?: string; // e.g., "google.com" to force specific domain
 }
 
 export interface SerpProviderResult {

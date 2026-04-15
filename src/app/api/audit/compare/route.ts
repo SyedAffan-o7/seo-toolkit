@@ -11,41 +11,110 @@ const requestSchema = z.object({
   device: z.enum(["desktop", "mobile"]).optional().default("desktop"),
 });
 
+// Expanded stopwords (100+ common English words)
 const STOPWORDS = new Set([
-  "the",
-  "is",
-  "at",
-  "which",
-  "on",
-  "and",
-  "a",
-  "an",
-  "of",
-  "for",
-  "to",
-  "in",
-  "with",
-  "by",
-  "from",
-  "this",
-  "that",
-  "it",
-  "as",
-  "be",
-  "or",
-  "are",
-  "was",
-  "were",
-  "but",
-  "if",
+  "a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at",
+  "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot", "could", "couldn't",
+  "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", "from", "further", "had",
+  "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here", "here's", "hers", "herself",
+  "him", "himself", "his", "how", "how's", "i", "i'd", "i'll", "i'm", "i've", "if", "in", "into", "is", "isn't", "it", "it's",
+  "its", "itself", "let's", "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "of", "off", "on", "once",
+  "only", "or", "other", "ought", "our", "ours", "ourselves", "out", "over", "own", "same", "shan't", "she", "she'd", "she'll",
+  "she's", "should", "shouldn't", "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves",
+  "then", "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too",
+  "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's",
+  "when", "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would",
+  "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"
 ]);
 
-const SIMPLE_SYNONYMS: Record<string, string[]> = {
-  buy: ["purchase"],
-  purchase: ["buy"],
-  cheap: ["budget"],
-  budget: ["cheap"],
-};
+// Lightweight Porter stemmer (adapted, no external deps)
+function porterStem(word: string): string {
+  let w = word.toLowerCase();
+  if (w.length <= 2) return w;
+  const step2list: Record<string, string> = {
+    ational: "ate", tional: "tion", enci: "ence", anci: "ance", izer: "ize", bli: "ble", alli: "al", entli: "ent", eli: "e",
+    ousli: "ous", ization: "ize", ation: "ate", ator: "ate", alism: "al", iveness: "ive", fulness: "ful", ousness: "ous", aliti: "al",
+    iviti: "ive", biliti: "ble", logi: "log"
+  };
+  const step3list: Record<string, string> = {
+    icate: "ic", ative: "", alize: "al", iciti: "ic", ical: "ic", ful: "", ness: ""
+  };
+  const c = "[bcdfghjklmnpqrstvwxyz]";
+  const v = "[aeiouy]";
+  const mgr0 = new RegExp(`^(${c}?${v}+${c})`);
+  const meq1 = new RegExp(`^(${c}?${v}+${c})${v}*` + `${c}?$`);
+  const mgr1 = new RegExp(`^(${c}?${v}+${c})${v}+${c}`);
+  const s_v = new RegExp(v);
+
+  const replace = (re: RegExp, repl: string) => {
+    const orig = w;
+    w = w.replace(re, repl);
+    return orig !== w;
+  };
+
+  // Step 1a
+  if (!replace(/sses$/, "ss")) {
+    if (!replace(/ies$/, "i")) {
+      if (!replace(/ss$/, "ss")) {
+        replace(/s$/, "");
+      }
+    }
+  }
+
+  // Step 1b
+  const orig = w;
+  if (replace(/eed$/, "ee")) {
+    if (!mgr0.test(orig)) w = orig;
+  } else if ((s_v.test(w.slice(0, -3)) && replace(/(ed|ing)$/, ""))) {
+    if (!replace(/(at|bl|iz)$/, "$1e")) {
+      if (/([^aeiouylsz])\1$/.test(w)) w = w.slice(0, -1);
+      else if (/^.{1,2}$/.test(w)) w = w;
+      else if (meq1.test(w)) w = w + "e";
+    }
+  }
+
+  // Step 1c
+  if (s_v.test(w.slice(0, -1))) replace(/y$/, "i");
+
+  // Step 2
+  for (const [k, v2] of Object.entries(step2list)) {
+    if (w.endsWith(k)) {
+      const stem = w.slice(0, -k.length);
+      if (mgr0.test(stem)) {
+        w = stem + v2;
+        break;
+      }
+    }
+  }
+
+  // Step 3
+  for (const [k, v3] of Object.entries(step3list)) {
+    if (w.endsWith(k)) {
+      const stem = w.slice(0, -k.length);
+      if (mgr0.test(stem)) {
+        w = stem + v3;
+        break;
+      }
+    }
+  }
+
+  // Step 4
+  const step4 = [/al$/, /ance$/, /ence$/, /er$/, /ic$/, /able$/, /ible$/, /ant$/, /ement$/, /ment$/, /ent$/, /ou$/, /ism$/, /ate$/, /iti$/, /ous$/, /ive$/, /ize$/];
+  for (const re of step4) {
+    if (re.test(w)) {
+      const stem = w.replace(re, "");
+      if (mgr1.test(stem)) {
+        w = stem;
+        break;
+      }
+    }
+  }
+
+  // Step 5a/b
+  if (mgr1.test(w) && /e$/.test(w)) w = w.replace(/e$/, "");
+  if (mgr1.test(w) && /ll$/.test(w)) w = w.replace(/ll$/, "l");
+  return w;
+}
 
 function stripSections(html: string): string {
   return html
@@ -60,27 +129,54 @@ function htmlToText(html: string): string {
   return stripSections(html).replace(/<[^>]+>/g, " ");
 }
 
-function tokenize(text: string): string[] {
-  return text
+function tokenize(text: string, maxTokens = 50000): string[] {
+  const raw = text
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter((t) => t.length > 1 && !STOPWORDS.has(t));
+  return raw.slice(0, maxTokens);
 }
 
-function uniqueWords(tokens: string[]): string[] {
-  return Array.from(new Set(tokens));
+function profileText(text: string): {
+  tokens: string[];
+  stems: string[];
+  stemSet: Set<string>;
+  ngrams: string[];
+  ngramSet: Set<string>;
+} {
+  const tokens = tokenize(text);
+  const { stems, stemSet } = stemTokens(tokens);
+  const { all, set } = ngramsFromStems(stems);
+  return { tokens, stems, stemSet, ngrams: all, ngramSet: set };
 }
 
-function buildVariations(keyword: string): string[] {
-  const tokens = tokenize(keyword);
-  const variations = new Set<string>();
-  tokens.forEach((t) => {
-    variations.add(t);
-    if (t.endsWith("s")) variations.add(t.slice(0, -1));
-    else variations.add(`${t}s`);
-    (SIMPLE_SYNONYMS[t] || []).forEach((syn) => variations.add(syn));
-  });
-  return Array.from(variations);
+function ngramsFromStems(stems: string[]): { bigrams: string[]; trigrams: string[]; all: string[]; set: Set<string> } {
+  const bigrams: string[] = [];
+  const trigrams: string[] = [];
+  for (let i = 0; i < stems.length; i++) {
+    if (i + 1 < stems.length) bigrams.push(`${stems[i]} ${stems[i + 1]}`);
+    if (i + 2 < stems.length) trigrams.push(`${stems[i]} ${stems[i + 1]} ${stems[i + 2]}`);
+  }
+  const all = [...bigrams, ...trigrams];
+  return { bigrams, trigrams, all, set: new Set(all) };
+}
+
+function stemTokens(tokens: string[]): { stems: string[]; stemSet: Set<string> } {
+  const stems = tokens.map((t) => porterStem(t));
+  return { stems, stemSet: new Set(stems) };
+}
+
+function buildVariations(keyword: string): {
+  tokens: string[];
+  stems: string[];
+  stemSet: Set<string>;
+  ngrams: string[];
+  ngramSet: Set<string>;
+} {
+  const tokens = tokenize(keyword, 1000);
+  const { stems, stemSet } = stemTokens(tokens);
+  const { all, set } = ngramsFromStems(stems);
+  return { tokens, stems, stemSet, ngrams: all, ngramSet: set };
 }
 
 function extractTagContent(html: string, tag: string): string {
@@ -226,21 +322,6 @@ function extractSchemaTypes(html: string): string[] {
   return Array.from(new Set(types));
 }
 
-function computeKeywordDensity(html: string, keyword: string): number {
-  const text = stripHtmlToText(html).toLowerCase();
-  const kw = keyword.toLowerCase();
-  if (!text || !kw) return 0;
-  const words = text.split(" ").length;
-  const kwWords = kw.split(" ").length;
-  let count = 0;
-  let idx = text.indexOf(kw);
-  while (idx !== -1) {
-    count++;
-    idx = text.indexOf(kw, idx + 1);
-  }
-  return words > 0 ? parseFloat(((count * kwWords * 100) / words).toFixed(2)) : 0;
-}
-
 async function fetchHtml(url: string): Promise<string> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 30000);
@@ -313,22 +394,45 @@ function buildAudit(
   const hasSchema = hasSchemaOrg(html);
   const schemaTypes = extractSchemaTypes(html);
   const keywordLower = keyword.toLowerCase();
-  const keywordDensity = computeKeywordDensity(cleanedHtml, keyword);
+  // keywordDensity now derived from stemmed token count (below)
 
-  const bodyTokens = tokenize(bodyText);
-  const uniqueBodyTokens = uniqueWords(bodyTokens);
-  const keywordTokens = tokenize(keywordLower);
-  const keywordVariations = buildVariations(keywordLower);
+  const keywordProfile = buildVariations(keywordLower);
 
-  const keywordPresence = {
-    title: tokenize(title).some((t) => keywordVariations.includes(t)),
-    meta: tokenize(metaDescription).some((t) => keywordVariations.includes(t)),
-    h1: tokenize(h1).some((t) => keywordVariations.includes(t)),
-    h2: h2s.some((h) => tokenize(h).some((t) => keywordVariations.includes(t))),
-    body: keywordVariations.some((t) => uniqueBodyTokens.includes(t)),
+  const bodyProfile = profileText(bodyText);
+  const titleProfile = profileText(title);
+  const metaProfile = profileText(metaDescription);
+  const h1Profile = profileText(h1);
+  const h2Profiles = h2s.map((h) => profileText(h));
+
+  const hasStem = (set: Set<string>, stems: Set<string>) => {
+    const arr = Array.from(stems);
+    for (let i = 0; i < arr.length; i++) {
+      if (set.has(arr[i])) return true;
+    }
+    return false;
   };
 
-  const keywordFrequency = bodyTokens.filter((t) => keywordVariations.includes(t)).length;
+  const keywordPresence = {
+    title: hasStem(titleProfile.stemSet, keywordProfile.stemSet),
+    meta: hasStem(metaProfile.stemSet, keywordProfile.stemSet),
+    h1: hasStem(h1Profile.stemSet, keywordProfile.stemSet),
+    h2: h2Profiles.some((h) => hasStem(h.stemSet, keywordProfile.stemSet)),
+    body: hasStem(bodyProfile.stemSet, keywordProfile.stemSet),
+  };
+
+  // Phrase (bigram/trigram) presence
+  const phrasePresence = {
+    title: Array.from(keywordProfile.ngramSet).some((p) => titleProfile.ngramSet.has(p)),
+    meta: Array.from(keywordProfile.ngramSet).some((p) => metaProfile.ngramSet.has(p)),
+    h1: Array.from(keywordProfile.ngramSet).some((p) => h1Profile.ngramSet.has(p)),
+    h2: h2Profiles.some((h) => Array.from(keywordProfile.ngramSet).some((p) => h.ngramSet.has(p))),
+    body: Array.from(keywordProfile.ngramSet).some((p) => bodyProfile.ngramSet.has(p)),
+  };
+
+  // Density
+  const keywordCount = bodyProfile.stems.filter((s) => keywordProfile.stemSet.has(s)).length;
+  const totalTokens = bodyProfile.stems.length || 1;
+  const keywordDensity = parseFloat(((keywordCount / totalTokens) * 100).toFixed(2));
 
   const snapshot: AuditSnapshot = {
     url,
@@ -352,10 +456,12 @@ function buildAudit(
     keywordInMeta: keywordPresence.meta,
     keywordInUrl: url.toLowerCase().includes(keywordLower.replace(/\s+/g, "-")),
     keywordDensity,
-    keywordTokens,
-    keywordVariations,
+    keywordTokens: keywordProfile.tokens,
+    keywordVariations: keywordProfile.stems,
     keywordPresence,
-    keywordFrequency,
+    keywordCount,
+    totalTokens,
+    phrasePresence,
     score: 0,
     googlePosition,
   };
@@ -364,34 +470,67 @@ function buildAudit(
 }
 
 function buildKeywordComparison(a: AuditSnapshot, b: AuditSnapshot): KeywordComparison {
-  const missingVariations = b.keywordVariations.filter((v) => !a.keywordVariations.includes(v)).slice(0, 10);
-  const overlap = a.keywordVariations.filter((v) => b.keywordVariations.includes(v));
+  const stemSetA = new Set(a.keywordVariations);
+  const stemSetB = new Set(b.keywordVariations);
+  const overlap = Array.from(stemSetA).filter((v) => stemSetB.has(v));
+  const missingKeywords = Array.from(stemSetB).filter((v) => !stemSetA.has(v)).slice(0, 10);
+
   const weakUsage: string[] = [];
   if (!a.keywordInTitle && b.keywordInTitle) weakUsage.push("Add keyword to title");
   if (!a.keywordInH1 && b.keywordInH1) weakUsage.push("Add keyword to H1");
   if (!a.keywordInMeta && b.keywordInMeta) weakUsage.push("Add keyword to meta description");
   if (!a.keywordPresence?.h2 && b.keywordPresence?.h2) weakUsage.push("Add keyword to H2/subheadings");
+  if (!a.phrasePresence?.title && b.phrasePresence?.title) weakUsage.push("Add exact phrase to title");
+  if (!a.phrasePresence?.h1 && b.phrasePresence?.h1) weakUsage.push("Add exact phrase to H1");
+
+  const bodyPoints = (count: number, present: boolean) => (present ? Math.min(10, Math.max(1, Math.round(count * 0.5))) : 0);
+
+  const scoreYou =
+    (a.keywordInTitle ? 5 : 0) +
+    (a.keywordInMeta ? 4 : 0) +
+    (a.keywordInH1 ? 4 : 0) +
+    (a.keywordPresence.h2 ? 3 : 0) +
+    bodyPoints(a.keywordCount, a.keywordPresence.body);
+
+  const scoreComp =
+    (b.keywordInTitle ? 5 : 0) +
+    (b.keywordInMeta ? 4 : 0) +
+    (b.keywordInH1 ? 4 : 0) +
+    (b.keywordPresence.h2 ? 3 : 0) +
+    bodyPoints(b.keywordCount, b.keywordPresence.body);
+
+  const phraseMatch = {
+    you: {
+      title: !!a.phrasePresence?.title,
+      meta: !!a.phrasePresence?.meta,
+      h1: !!a.phrasePresence?.h1,
+      h2: !!a.phrasePresence?.h2,
+    },
+    competitor: {
+      title: !!b.phrasePresence?.title,
+      meta: !!b.phrasePresence?.meta,
+      h1: !!b.phrasePresence?.h1,
+      h2: !!b.phrasePresence?.h2,
+    },
+  };
 
   return {
     primaryUsage: {
-      you: {
-        title: a.keywordInTitle,
-        meta: a.keywordInMeta,
-        h1: a.keywordInH1,
-      },
-      competitor: {
-        title: b.keywordInTitle,
-        meta: b.keywordInMeta,
-        h1: b.keywordInH1,
-      },
+      you: { ...a.keywordPresence },
+      competitor: { ...b.keywordPresence },
     },
-    missingVariations,
+    density: {
+      you: parseFloat(a.keywordDensity.toFixed(2)),
+      competitor: parseFloat(b.keywordDensity.toFixed(2)),
+    },
+    score: {
+      you: scoreYou,
+      competitor: scoreComp,
+    },
     overlap,
+    missingKeywords,
     weakUsage,
-    frequency: {
-      you: a.keywordFrequency,
-      competitor: b.keywordFrequency,
-    },
+    phraseMatch,
   };
 }
 

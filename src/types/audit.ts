@@ -29,7 +29,15 @@ export type AuditSnapshot = {
     h2: boolean;
     body: boolean;
   };
-  keywordFrequency: number;
+  keywordCount: number;
+  totalTokens: number;
+  phrasePresence: {
+    title: boolean;
+    meta: boolean;
+    h1: boolean;
+    h2: boolean;
+    body: boolean;
+  };
   score: number;
   // NEW: Actual Google ranking position
   googlePosition: number | null;
@@ -37,13 +45,18 @@ export type AuditSnapshot = {
 
 export type KeywordComparison = {
   primaryUsage: {
-    you: { title: boolean; meta: boolean; h1: boolean };
-    competitor: { title: boolean; meta: boolean; h1: boolean };
+    you: { title: boolean; meta: boolean; h1: boolean; h2: boolean; body: boolean };
+    competitor: { title: boolean; meta: boolean; h1: boolean; h2: boolean; body: boolean };
   };
-  missingVariations: string[];
+  density: { you: number; competitor: number };
+  score: { you: number; competitor: number };
   overlap: string[];
+  missingKeywords: string[];
   weakUsage: string[];
-  frequency: { you: number; competitor: number };
+  phraseMatch: {
+    you: { title: boolean; meta: boolean; h1: boolean; h2: boolean };
+    competitor: { title: boolean; meta: boolean; h1: boolean; h2: boolean };
+  };
 };
 
 export type AuditSuggestion = {

@@ -24,7 +24,7 @@ const GEO_OPTIONS = [
   { value: "jp", label: "Japan" },
   { value: "br", label: "Brazil" },
   { value: "mx", label: "Mexico" },
-  { value: "ae", label: "United Arab Emirates" },
+  { value: "ae", label: "United Arab Emirates" }  ,
 ];
 
 export default function SearchForm({ onSubmit, isLoading }: SearchFormProps) {
