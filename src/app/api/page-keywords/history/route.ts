@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+// Force dynamic rendering - uses request.url
+export const dynamic = 'force-dynamic';
+
 // GET /api/page-keywords/history?pageKeywordId=xxx&days=30
 export async function GET(request: NextRequest) {
   try {
