@@ -31,79 +31,90 @@ export class SerperProvider implements SerpProvider {
       throw new Error("Serper API key is not configured. Set SERP_API_KEY in environment variables.");
     }
 
-    const body: Record<string, unknown> = {
-      q: options.keyword,
-      num: Math.min(targetResults, 100),
-      hl: "en",
-      gl: options.geo || "us",
-      page: 1,
-    };
+    const perPage = 10;
+    const totalPages = Math.ceil(targetResults / perPage);
 
-    if (options.device === "mobile") {
-      body.device = "mobile";
-    }
-
-    // domainOverride not directly supported by Serper, but we can
-    // append site: operator or just skip (results are global anyway)
-    // Serper searches google.com by default regardless of gl param for organic results
-
-    let response;
-    try {
-      response = await axios.post(
-        "https://google.serper.dev/search",
-        body,
-        {
-          headers: {
-            "X-API-KEY": this.apiKey,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err) && err.response) {
-        const msg = err.response.data?.message || err.response.statusText || "Unknown Serper API error";
-        throw new Error(`Serper API error (${err.response.status}): ${msg}`);
-      }
-      throw err;
-    }
-
-    const data = response.data;
-    const organicResults: SerperOrganicResult[] = data.organic || [];
-
-    console.log(`[Serper] query="${options.keyword}" organic=${organicResults.length}`);
-
-    if (data.answerBox) allFeatures.push("featured_snippet");
-    if (data.peopleAlsoAsk) allFeatures.push("people_also_ask");
-    if (data.localResults) allFeatures.push("local_pack");
-    if (data.knowledgeGraph) allFeatures.push("knowledge_panel");
-    if (data.images) allFeatures.push("image_pack");
-    if (data.videos) allFeatures.push("video");
-
-    organicResults.forEach((item) => {
-      const url = item.link || "";
-      let domain = "";
-      try {
-        domain = new URL(url).hostname.replace(/^www\./, "");
-      } catch {
-        domain = url;
-      }
-
-      const result: SerpResult = {
-        position: item.position || 0,
-        url,
-        domain,
-        title: item.title || "",
-        snippet: item.snippet || "",
-        isTargetMatch: false,
-        serpFeatures: item.sitelinks ? ["sitelinks"] : [],
+    for (let page = 1; page <= totalPages; page++) {
+      const body: Record<string, unknown> = {
+        q: options.keyword,
+        num: perPage,
+        hl: "en",
+        gl: options.geo || "us",
+        page,
       };
-      allResults.push(result);
-    });
+
+      if (options.device === "mobile") {
+        body.device = "mobile";
+      }
+
+      let response;
+      try {
+        response = await axios.post(
+          "https://google.serper.dev/search",
+          body,
+          {
+            headers: {
+              "X-API-KEY": this.apiKey,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err) && err.response) {
+          const msg = err.response.data?.message || err.response.statusText || "Unknown Serper API error";
+          throw new Error(`Serper API error (${err.response.status}): ${msg}`);
+        }
+        throw err;
+      }
+
+      const data = response.data;
+      const organicResults: SerperOrganicResult[] = data.organic || [];
+
+      console.log(`[Serper] query="${options.keyword}" page=${page} organic=${organicResults.length}`);
+
+      if (page === 1) {
+        if (data.answerBox) allFeatures.push("featured_snippet");
+        if (data.peopleAlsoAsk) allFeatures.push("people_also_ask");
+        if (data.localResults) allFeatures.push("local_pack");
+        if (data.knowledgeGraph) allFeatures.push("knowledge_panel");
+        if (data.images) allFeatures.push("image_pack");
+        if (data.videos) allFeatures.push("video");
+      }
+
+      organicResults.forEach((item) => {
+        const url = item.link || "";
+        let domain = "";
+        try {
+          domain = new URL(url).hostname.replace(/^www\./, "");
+        } catch {
+          domain = url;
+        }
+
+        const result: SerpResult = {
+          position: item.position || allResults.length + 1,
+          url,
+          domain,
+          title: item.title || "",
+          snippet: item.snippet || "",
+          isTargetMatch: false,
+          serpFeatures: item.sitelinks ? ["sitelinks"] : [],
+        };
+        allResults.push(result);
+      });
+
+      if (organicResults.length < perPage) {
+        break;
+      }
+
+      if (allResults.length >= targetResults) {
+        break;
+      }
+    }
 
     return {
       results: allResults.slice(0, targetResults),
       serpFeatures: Array.from(new Set(allFeatures)),
-      totalResults: organicResults.length,
+      totalResults: allResults.length,
     };
   }
 }
