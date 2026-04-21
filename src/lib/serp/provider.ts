@@ -1,6 +1,7 @@
 import { SerpResult, SerpFeature } from "@/types/serp";
 import { MockSerpProvider } from "./mock";
 import { SerpApiProvider } from "./serpapi";
+import { SerperProvider } from "./serper";
 
 export interface SerpProviderOptions {
   keyword: string;
@@ -27,6 +28,8 @@ export function getSerpProvider(): SerpProvider {
   switch (provider) {
     case "serpapi":
       return new SerpApiProvider(process.env.SERP_API_KEY || "");
+    case "serper":
+      return new SerperProvider(process.env.SERP_API_KEY || "");
     case "mock":
     default:
       return new MockSerpProvider();
