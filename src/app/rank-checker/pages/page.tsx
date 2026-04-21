@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, FormEvent, useCallback } from "react";
 import TopBar from "@/components/layout/TopBar";
 import PageKeywordManager from "@/components/page-keywords/PageKeywordManager";
 import PageKeywordDashboard from "@/components/page-keywords/PageKeywordDashboard";
@@ -53,11 +53,7 @@ export default function PageRankingsPage() {
   const [newProjectDomain, setNewProjectDomain] = useState("");
   const [isCreatingProject, setIsCreatingProject] = useState(false);
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       const res = await fetch("/api/projects");
       if (!res.ok) throw new Error("Failed to fetch");
@@ -74,7 +70,11 @@ export default function PageRankingsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedProjectId]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   const handleCreateProject = async (e: FormEvent) => {
     e.preventDefault();

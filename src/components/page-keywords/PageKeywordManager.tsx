@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Plus, Trash2, Edit2, Check, X, Globe, Monitor, Smartphone, Search, FileText, ExternalLink, Download, Upload , ToggleLeft,ToggleRight} from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Plus, Trash2, Edit2, Check, X, Globe, Monitor, Smartphone, Search, FileText, ExternalLink, Download, Upload } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface PageKeyword {
@@ -50,7 +50,7 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
   const [isChecking, setIsChecking] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [numResults, setNumResults] = useState<number>(20);
+  const [numResults] = useState<number>(20);
   const [rowDepths, setRowDepths] = useState<Record<string, number>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -70,11 +70,7 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
     notes: "",
   });
 
-  useEffect(() => {
-    fetchMappings();
-  }, [projectId]);
-
-  const fetchMappings = async () => {
+  const fetchMappings = useCallback(async () => {
     try {
       const res = await fetch(`/api/page-keywords?projectId=${projectId}`);
       if (!res.ok) throw new Error("Failed to fetch");
@@ -85,7 +81,11 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [projectId]);
+
+  useEffect(() => {
+    fetchMappings();
+  }, [fetchMappings]);
 
   const handleAdd = async () => {
     if (!newMapping.pageUrl.trim() || !newMapping.keyword.trim()) {

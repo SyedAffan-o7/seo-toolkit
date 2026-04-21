@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { TrendingUp, TrendingDown, Minus, Calendar, Target, Award, AlertTriangle } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import toast from "react-hot-toast";
@@ -44,11 +44,7 @@ export default function PageKeywordDashboard({ projectId }: PageKeywordDashboard
   const [isLoading, setIsLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d">("30d");
 
-  useEffect(() => {
-    fetchMappings();
-  }, [projectId]);
-
-  const fetchMappings = async () => {
+  const fetchMappings = useCallback(async () => {
     try {
       const res = await fetch(`/api/page-keywords?projectId=${projectId}`);
       if (!res.ok) throw new Error("Failed to fetch");
@@ -65,7 +61,11 @@ export default function PageKeywordDashboard({ projectId }: PageKeywordDashboard
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [projectId, selectedMapping]);
+
+  useEffect(() => {
+    fetchMappings();
+  }, [fetchMappings]);
 
   const calculateStats = (): Stats => {
     const active = mappings.filter(m => m.isActive);
