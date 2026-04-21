@@ -8,6 +8,8 @@ const bulkCheckSchema = z.object({
   projectId: z.string(),
   pageKeywordIds: z.array(z.string()).optional(), // Check specific ones, or all active if empty
   checkAllActive: z.boolean().default(false),
+  numResults: z.number().int().min(10).max(200).optional(),
+  pageKeywordDepths: z.record(z.string(), z.number().int().min(10).max(200)).optional(),
 });
 
 // POST /api/page-keywords/check - Bulk check rankings
@@ -23,7 +25,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { projectId, pageKeywordIds, checkAllActive } = parsed.data;
+    const { projectId, pageKeywordIds, checkAllActive, numResults, pageKeywordDepths } = parsed.data;
 
     // Build query
     const where: { projectId: string; id?: { in: string[] }; isActive?: boolean } = { projectId };
@@ -63,11 +65,13 @@ export async function POST(request: NextRequest) {
         
         console.log(`[PageKeyword Check] Checking: "${mapping.keyword}" for ${normalizedPageUrl} (domain: ${pageDomain})`);
         
+        const depth = pageKeywordDepths?.[mapping.id] ?? numResults ?? 100;
+
         const providerResult = await provider.search({
           keyword: mapping.keyword,
           geo: mapping.geo,
           device: mapping.device,
-          numResults: 100,
+          numResults: depth,
         });
 
         console.log(`[PageKeyword Check] Got ${providerResult.results.length} results from SERP provider`);
@@ -119,7 +123,7 @@ export async function POST(request: NextRequest) {
             keyword: mapping.keyword,
             geo: mapping.geo,
             device: mapping.device,
-            numResults: 100,
+            numResults: depth,
             domainOverride: "google.com",
           });
 

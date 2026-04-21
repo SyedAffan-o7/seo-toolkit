@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Plus, Trash2, Edit2, Check, X, Globe, Monitor, Smartphone, Search, FileText, ExternalLink, Download, Upload } from "lucide-react";
+import { Plus, Trash2, Edit2, Check, X, Globe, Monitor, Smartphone, Search, FileText, ExternalLink, Download, Upload , ToggleLeft,ToggleRight} from "lucide-react";
 import toast from "react-hot-toast";
 
 interface PageKeyword {
@@ -50,6 +50,8 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
   const [isChecking, setIsChecking] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [numResults, setNumResults] = useState<number>(20);
+  const [rowDepths, setRowDepths] = useState<Record<string, number>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [newMapping, setNewMapping] = useState({
@@ -167,12 +169,22 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
 
     setIsChecking(true);
     try {
+      // Build per-row depths map for active mappings
+      const depths: Record<string, number> = {};
+      mappings
+        .filter((m) => m.isActive)
+        .forEach((m) => {
+          depths[m.id] = rowDepths[m.id] ?? numResults;
+        });
+
       const res = await fetch("/api/page-keywords/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           projectId,
           checkAllActive: true,
+          numResults,
+          pageKeywordDepths: depths,
         }),
       });
 
@@ -238,6 +250,29 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
     }
   };
 
+const handleToggleActive = async (id: string,currentActive:boolean)=>{
+
+  try {
+    const res = await fetch(`/api/page-keywords`,{
+      method:"PATCH",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        id,
+        isActive:!currentActive
+      })
+    });
+
+    if(!res.ok) throw new Error(" Failed to update")
+
+    toast.success(`${currentActive ? "Deactivated" : "Activated"} mapping`)
+    fetchMappings()
+  } catch {
+    toast.error("Failed to update mapping")
+  }
+}
+ 
   const getPositionBadge = (position: number | null) => {
     if (position === null) return <span className="text-gray-400">Not found</span>;
     if (position <= 3) return <span className="text-emerald-600 font-semibold">#{position}</span>;
@@ -432,6 +467,9 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
                   Current Position
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Active
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Checks
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -519,6 +557,42 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
                     )}
                   </td>
                   <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="range"
+                        min="20"
+                        max="100"
+                        step="10"
+                        value={rowDepths[mapping.id] ?? numResults}
+                        onChange={(e) =>
+                          setRowDepths((prev) => ({
+                            ...prev,
+                            [mapping.id]: parseInt(e.target.value),
+                          }))
+                        }
+                        className="h-2 w-28 rounded-lg bg-gray-200 accent-brand-600 cursor-pointer"
+                      />
+                      <span className="text-xs text-gray-700 w-8 text-right">
+                        {rowDepths[mapping.id] ?? numResults}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => handleToggleActive(mapping.id, mapping.isActive)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        mapping.isActive ? "bg-brand-600" : "bg-gray-200"
+                      }`}
+                      aria-label={mapping.isActive ? "Deactivate mapping" : "Activate mapping"}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                          mapping.isActive ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </td>
+                  <td className="px-4 py-3">
                     <span className="text-sm text-gray-600">{mapping._count.positions} checks</span>
                   </td>
                   <td className="px-4 py-3">
@@ -560,7 +634,7 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
               ))}
               {mappings.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center">
+                  <td colSpan={7} className="px-4 py-12 text-center">
                     <div className="mx-auto max-w-sm">
                       <FileText className="mx-auto h-10 w-10 text-gray-300" />
                       <h3 className="mt-3 text-base font-medium text-gray-900">
