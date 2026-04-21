@@ -116,8 +116,9 @@ export async function POST(request: NextRequest) {
         }
 
         // If not found on local domain, try google.com as fallback
+        // Skip for Serper provider since it always searches google.com
         let globalDomainPosition: number | null = null;
-        if (pagePosition === null && mapping.geo) {
+        if (pagePosition === null && mapping.geo && provider.name !== "serper") {
           console.log(`[PageKeyword Check] Not found on local domain, trying google.com...`);
           const globalResult = await provider.search({
             keyword: mapping.keyword,
@@ -190,6 +191,19 @@ export async function POST(request: NextRequest) {
           serpFeatures: providerResult.serpFeatures,
           checkedAt: positionRecord.checkedAt,
           success: true,
+          debug: {
+            targetDomain: pageDomain,
+            normalizedPageUrl,
+            depthUsed: depth,
+            geo: mapping.geo,
+            device: mapping.device,
+            resultsReturned: providerResult.results.length,
+            top5: providerResult.results.slice(0, 5).map(r => ({
+              pos: r.position,
+              url: r.url,
+              domain: r.domain,
+            })),
+          },
         });
       } catch (error) {
         console.error(`Error checking ${mapping.pageUrl} for "${mapping.keyword}":`, error);

@@ -27,6 +27,10 @@ export class SerperProvider implements SerpProvider {
     const allResults: SerpResult[] = [];
     const allFeatures: SerpFeature[] = [];
 
+    if (!this.apiKey) {
+      throw new Error("Serper API key is not configured. Set SERP_API_KEY in environment variables.");
+    }
+
     const body: Record<string, unknown> = {
       q: options.keyword,
       num: Math.min(targetResults, 100),
@@ -39,16 +43,29 @@ export class SerperProvider implements SerpProvider {
       body.device = "mobile";
     }
 
-    const response = await axios.post(
-      "https://google.serper.dev/search",
-      body,
-      {
-        headers: {
-          "X-API-KEY": this.apiKey,
-          "Content-Type": "application/json",
-        },
+    // domainOverride not directly supported by Serper, but we can
+    // append site: operator or just skip (results are global anyway)
+    // Serper searches google.com by default regardless of gl param for organic results
+
+    let response;
+    try {
+      response = await axios.post(
+        "https://google.serper.dev/search",
+        body,
+        {
+          headers: {
+            "X-API-KEY": this.apiKey,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response) {
+        const msg = err.response.data?.message || err.response.statusText || "Unknown Serper API error";
+        throw new Error(`Serper API error (${err.response.status}): ${msg}`);
       }
-    );
+      throw err;
+    }
 
     const data = response.data;
     const organicResults: SerperOrganicResult[] = data.organic || [];

@@ -191,6 +191,7 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
       if (!res.ok) throw new Error("Failed to check rankings");
 
       const data = await res.json();
+      console.log("[Bulk Check Response]", JSON.stringify(data, null, 2));
       toast.success(`Checked ${data.checked} mappings, ${data.failed} failed`);
       fetchMappings();
     } catch {
