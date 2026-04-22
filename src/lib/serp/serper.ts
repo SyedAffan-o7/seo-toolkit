@@ -81,7 +81,7 @@ export class SerperProvider implements SerpProvider {
         if (data.videos) allFeatures.push("video");
       }
 
-      organicResults.forEach((item) => {
+      organicResults.forEach((item, idx) => {
         const url = item.link || "";
         let domain = "";
         try {
@@ -90,8 +90,12 @@ export class SerperProvider implements SerpProvider {
           domain = url;
         }
 
+        // Calculate absolute position: (page - 1) * perPage + index + 1
+        // Serper's item.position is relative to the page, so we calculate our own
+        const absolutePosition = (page - 1) * perPage + idx + 1;
+
         const result: SerpResult = {
-          position: item.position || allResults.length + 1,
+          position: absolutePosition,
           url,
           domain,
           title: item.title || "",
