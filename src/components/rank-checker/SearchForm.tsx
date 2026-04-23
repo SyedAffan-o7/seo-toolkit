@@ -33,7 +33,7 @@ export default function SearchForm({ onSubmit, isLoading }: SearchFormProps) {
   const [targetUrl, setTargetUrl] = useState("");
   const [geo, setGeo] = useState("us");
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
-  const [numResults, setNumResults] = useState(100);
+  const [numResults, setNumResults] = useState(20);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
