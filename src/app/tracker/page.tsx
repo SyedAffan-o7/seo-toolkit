@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import TopBar from "@/components/layout/TopBar";
 import type {
   KeywordSummary,
@@ -38,6 +39,7 @@ const GEO_OPTIONS = [
 ];
 
 export default function TrackerPage() {
+  const router = useRouter();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [keywords, setKeywords] = useState<KeywordSummary[]>([]);
   const [history, setHistory] = useState<TrackerHistoryResponse["history"]>([]);
@@ -49,7 +51,6 @@ export default function TrackerPage() {
   const [selectedKeywordId, setSelectedKeywordId] = useState("");
 
   const [projectName, setProjectName] = useState("");
-  const [projectDomain, setProjectDomain] = useState("");
   const [isCreatingProject, setIsCreatingProject] = useState(false);
 
   const [keywordName, setKeywordName] = useState("");
@@ -157,7 +158,7 @@ export default function TrackerPage() {
 
   useEffect(() => {
     fetchProjects().catch((error: unknown) =>
-      toast.error(getErrorMessage(error, "Failed to load projects"))
+      toast.error(getErrorMessage(error, "Failed to load profiles"))
     );
   }, [fetchProjects]);
 
@@ -177,8 +178,8 @@ export default function TrackerPage() {
 
   const handleCreateProject = async (e: FormEvent) => {
     e.preventDefault();
-    if (!projectName.trim() || !projectDomain.trim()) {
-      toast.error("Project name and domain are required");
+    if (!projectName.trim()) {
+      toast.error("Project name is required");
       return;
     }
 
@@ -189,7 +190,6 @@ export default function TrackerPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: projectName.trim(),
-          domain: projectDomain.trim(),
         }),
       });
 
@@ -199,10 +199,9 @@ export default function TrackerPage() {
       }
 
       setProjectName("");
-      setProjectDomain("");
-      await fetchProjects();
-      setSelectedProjectId(payload.project.id);
       toast.success("Project created");
+      // Redirect to page rankings with the new project
+      router.push(`/rank-checker/pages?projectId=${payload.project.id}`);
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, "Failed to create project"));
     } finally {
@@ -384,7 +383,7 @@ export default function TrackerPage() {
 
   return (
     <>
-      <TopBar title="Rank Tracker" subtitle="Track keywords, monitor competitors, and analyze ranking trends" />
+      <TopBar title="Rank Tracker" subtitle="Track keywords for a specific profile and analyze ranking trends" />
 
       <div className="p-6 space-y-6">
 
@@ -517,12 +516,6 @@ export default function TrackerPage() {
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
               placeholder="Project name"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-            />
-            <input
-              value={projectDomain}
-              onChange={(e) => setProjectDomain(e.target.value)}
-              placeholder="example.com"
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
             />
             <button

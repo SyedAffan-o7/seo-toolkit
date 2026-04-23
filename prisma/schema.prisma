@@ -15,8 +15,8 @@ enum DeviceType {
 
 model Project {
   id          String       @id @default(cuid())
-  name        String
-  domain      String
+  name        String       @unique
+  domain      String?
   description String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
@@ -26,7 +26,6 @@ model Project {
   rankSnapshots   RankSnapshot[]
   pageKeywords  PageKeyword[]
 
-  @@unique([name, domain])
   @@index([domain])
 }
 
@@ -106,6 +105,7 @@ model PageKeyword {
   device       DeviceType @default(desktop)
   isActive     Boolean    @default(true)
   notes        String?
+  checkDepth   Int        @default(100)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 

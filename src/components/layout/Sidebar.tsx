@@ -32,7 +32,7 @@ const navigation = [
         icon: Search,
       },
       {
-        name: "Page Rankings",
+        name: "Profile Rankings",
         href: "/rank-checker/pages",
         icon: Target,
       },

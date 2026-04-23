@@ -9,6 +9,7 @@ interface SearchFormProps {
     targetUrl: string;
     geo: string;
     device: "desktop" | "mobile";
+    numResults: number;
   }) => void;
   isLoading: boolean;
 }
@@ -32,16 +33,35 @@ export default function SearchForm({ onSubmit, isLoading }: SearchFormProps) {
   const [targetUrl, setTargetUrl] = useState("");
   const [geo, setGeo] = useState("us");
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
+  const [numResults, setNumResults] = useState(100);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!keyword.trim() || !targetUrl.trim()) return;
-    onSubmit({ keyword: keyword.trim(), targetUrl: targetUrl.trim(), geo, device });
+    onSubmit({ keyword: keyword.trim(), targetUrl: targetUrl.trim(), geo, device, numResults });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid gap-4 md:grid-cols-2">
+        {/* Target URL Input */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Target URL
+          </label>
+          <div className="relative"> 
+            <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <input
+              type="url"
+              value={targetUrl}
+              onChange={(e) => setTargetUrl(e.target.value)}
+              placeholder="https://example.com/page"
+              className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+              required
+            />
+          </div>
+        </div>
+
         {/* Keyword Input */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -53,26 +73,8 @@ export default function SearchForm({ onSubmit, isLoading }: SearchFormProps) {
               type="text"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              placeholder="e.g. best project management tools"
-              className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
-              required
-            />
-          </div>
-        </div>
-
-        {/* Target URL Input */}  
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-            Website URL or Domain
-          </label>
-          <div className="relative">
-            <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              value={targetUrl}
-              onChange={(e) => setTargetUrl(e.target.value)}
-              placeholder="e.g. mywebsite.com or https://mywebsite.com/page"
-              className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
+              placeholder="e.g. best seo tools"
+              className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
               required
             />
           </div>
@@ -81,7 +83,7 @@ export default function SearchForm({ onSubmit, isLoading }: SearchFormProps) {
 
       <div className="flex flex-wrap items-end gap-4">
         {/* Geo Select */}
-        <div className="min-w-[180px]">
+        <div className="flex-1 min-w-[140px]">
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Location
           </label>
@@ -98,16 +100,36 @@ export default function SearchForm({ onSubmit, isLoading }: SearchFormProps) {
           </select>
         </div>
 
+        {/* Depth Slider */}
+        <div className="flex-1 min-w-[140px]">
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Search Depth: <span className="text-brand-600 font-semibold">{numResults}</span>
+          </label>
+          <input
+            type="range"
+            min={20}
+            max={100}
+            step={10}
+            value={numResults}
+            onChange={(e) => setNumResults(Number(e.target.value))}
+            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand-600"
+          />
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>20</span>
+            <span>100</span>
+          </div>
+        </div>
+
         {/* Device Toggle */}
-        <div>
+        <div className="flex-1 min-w-[140px]">
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Device
           </label>
-          <div className="flex rounded-lg border border-gray-300 bg-white p-0.5">
+          <div className="flex justify-between rounded-lg border border-gray-300 bg-white p-0.5 gap-1">
             <button
               type="button"
               onClick={() => setDevice("desktop")}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                 device === "desktop"
                   ? "bg-brand-600 text-white shadow-sm"
                   : "text-gray-600 hover:text-gray-900"
@@ -119,7 +141,7 @@ export default function SearchForm({ onSubmit, isLoading }: SearchFormProps) {
             <button
               type="button"
               onClick={() => setDevice("mobile")}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                 device === "mobile"
                   ? "bg-brand-600 text-white shadow-sm"
                   : "text-gray-600 hover:text-gray-900"

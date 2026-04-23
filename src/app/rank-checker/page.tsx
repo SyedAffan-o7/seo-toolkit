@@ -21,6 +21,7 @@ export default function RankCheckerPage() {
     targetUrl: string;
     geo: string;
     device: "desktop" | "mobile";
+    numResults: number;
   }) => {
     setIsLoading(true);
     try {

@@ -10,6 +10,7 @@ const createSchema = z.object({
   geo: z.string().default("us"),
   device: z.enum(["desktop", "mobile"]).default("desktop"),
   notes: z.string().optional(),
+  checkDepth: z.number().int().min(20).max(100).default(100),
 });
 
 const updateSchema = z.object({
@@ -96,6 +97,7 @@ export async function POST(request: NextRequest) {
         geo: data.geo,
         device: data.device,
         notes: data.notes,
+        checkDepth: data.checkDepth,
       },
       include: {
         positions: {
@@ -108,14 +110,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(pageKeyword, { status: 201 });
   } catch (error) {
     console.error("Error creating page keyword:", error);
-    if (error instanceof Error && error.message.includes("Unique constraint")) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    if (errorMessage.includes("Unique constraint")) {
       return NextResponse.json(
         { error: "This page-keyword combination already exists for this project" },
         { status: 409 }
       );
     }
     return NextResponse.json(
-      { error: "Failed to create page keyword" },
+      { error: `Failed to create page keyword: ${errorMessage}` },
       { status: 500 }
     );
   }

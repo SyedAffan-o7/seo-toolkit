@@ -65,7 +65,11 @@ export async function POST(request: NextRequest) {
         
         console.log(`[PageKeyword Check] Checking: "${mapping.keyword}" for ${normalizedPageUrl} (domain: ${pageDomain})`);
         
-        const depth = pageKeywordDepths?.[mapping.id] ?? numResults ?? 100;
+        const depthFromPayload = pageKeywordDepths?.[mapping.id];
+        const depthFromMapping = (mapping as any).checkDepth;
+        const depth = depthFromPayload ?? depthFromMapping ?? numResults ?? 20;
+
+        console.log(`[PageKeyword Check] Depth resolution: payload=${depthFromPayload}, mapping.checkDepth=${depthFromMapping}, numResults=${numResults}, final=${depth}`);
 
         const providerResult = await provider.search({
           keyword: mapping.keyword,
@@ -74,7 +78,7 @@ export async function POST(request: NextRequest) {
           numResults: depth,
         });
 
-        console.log(`[PageKeyword Check] Got ${providerResult.results.length} results from SERP provider`);
+        console.log(`[PageKeyword Check] Got ${providerResult.results.length} results from SERP provider (requested ${depth})`);
 
         // Find position - first try domain match (most common use case)
         let pagePosition: number | null = null;

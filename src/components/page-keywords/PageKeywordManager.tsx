@@ -54,13 +54,42 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
   const [rowDepths, setRowDepths] = useState<Record<string, number>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const [newMapping, setNewMapping] = useState({
-    pageUrl: "",
-    keyword: "",
-    geo: "us",
-    device: "desktop" as "desktop" | "mobile",
-    notes: "",
-  });
+  interface NewMapping {
+    id: string;
+    pageUrl: string;
+    keyword: string;
+    geo: string;
+    device: "desktop" | "mobile";
+    checkDepth: number;
+  }
+
+  const [newMappings, setNewMappings] = useState<NewMapping[]>([
+    { id: "1", pageUrl: "", keyword: "", geo: "us", device: "desktop", checkDepth: 20 },
+  ]);
+
+  const addMappingRow = () => {
+    setNewMappings((prev) => [
+      ...prev,
+      {
+        id: String(Date.now()),
+        pageUrl: "",
+        keyword: "",
+        geo: prev[prev.length - 1]?.geo || "us",
+        device: prev[prev.length - 1]?.device || "desktop",
+        checkDepth: prev[prev.length - 1]?.checkDepth || 20,
+      },
+    ]);
+  };
+
+  const removeMappingRow = (id: string) => {
+    setNewMappings((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  const updateMappingRow = (id: string, updates: Partial<NewMapping>) => {
+    setNewMappings((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, ...updates } : m))
+    );
+  };
 
   const [editMapping, setEditMapping] = useState({
     keyword: "",
@@ -75,6 +104,7 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
       const res = await fetch(`/api/page-keywords?projectId=${projectId}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
+      console.log("[fetchMappings] Loaded mappings with checkDepth:", data.map((m: any) => ({ id: m.id, keyword: m.keyword, checkDepth: m.checkDepth })));
       setMappings(data);
     } catch {
       toast.error("Failed to load page-keyword mappings");
@@ -88,38 +118,57 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
   }, [fetchMappings]);
 
   const handleAdd = async () => {
-    if (!newMapping.pageUrl.trim() || !newMapping.keyword.trim()) {
-      toast.error("Page URL and keyword are required");
+    const validMappings = newMappings.filter(
+      (m) => m.pageUrl.trim() && m.keyword.trim()
+    );
+
+    if (validMappings.length === 0) {
+      toast.error("At least one Page URL and keyword are required");
       return;
     }
 
-    try {
-      const res = await fetch("/api/page-keywords", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...newMapping,
-          projectId,
-        }),
-      });
+    console.log("[handleAdd] Sending mappings with checkDepth:", validMappings.map(m => ({ keyword: m.keyword, checkDepth: m.checkDepth })));
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to create");
+    try {
+      const results = await Promise.all(
+        validMappings.map(async (mapping) => {
+          const payload = {
+            pageUrl: mapping.pageUrl,
+            keyword: mapping.keyword,
+            geo: mapping.geo,
+            device: mapping.device,
+            checkDepth: mapping.checkDepth,
+            projectId,
+          };
+          console.log("[handleAdd] POST payload:", payload);
+          const res = await fetch("/api/page-keywords", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const responseData = await res.json().catch(() => null);
+          console.log("[handleAdd] Response:", res.status, responseData);
+          if (!res.ok) {
+            return { ok: false, error: responseData?.error || `HTTP ${res.status}`, mapping };
+          }
+          return { ok: true, mapping, checkDepth: responseData?.checkDepth };
+        })
+      );
+
+      const failed = results.filter((r) => !r.ok);
+      if (failed.length > 0) {
+        const errors = failed.map((f) => `${f.mapping.keyword}: ${f.error}`).join("; ");
+        throw new Error(`Failed to create ${failed.length} mapping(s): ${errors}`);
       }
 
-      toast.success("Mapping added successfully");
-      setNewMapping({
-        pageUrl: "",
-        keyword: "",
-        geo: "us",
-        device: "desktop",
-        notes: "",
-      });
+      toast.success(`${validMappings.length} mapping(s) added successfully`);
+      setNewMappings([
+        { id: "1", pageUrl: "", keyword: "", geo: "us", device: "desktop", checkDepth: 20 },
+      ]);
       setIsAdding(false);
       fetchMappings();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to add mapping");
+      toast.error(err instanceof Error ? err.message : "Failed to add mapping(s)");
     }
   };
 
@@ -174,16 +223,16 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
       mappings
         .filter((m) => m.isActive)
         .forEach((m) => {
-          depths[m.id] = rowDepths[m.id] ?? numResults;
+          depths[m.id] = rowDepths[m.id] ?? (m as any).checkDepth ?? 20;
         });
 
+      console.log("[Bulk Check] Sending depths:", depths, "numResults:", numResults);
       const res = await fetch("/api/page-keywords/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           projectId,
           checkAllActive: true,
-          numResults,
           pageKeywordDepths: depths,
         }),
       });
@@ -196,6 +245,47 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
       fetchMappings();
     } catch {
       toast.error("Failed to run bulk check");
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
+  const handleCheckSingle = async (mappingId: string) => {
+    const mapping = mappings.find(m => m.id === mappingId);
+    if (!mapping) return;
+
+    setIsChecking(true);
+    try {
+      // Use slider value if changed, otherwise use mapping's saved checkDepth
+      const depth = rowDepths[mappingId] ?? (mapping as any).checkDepth ?? 20;
+      const res = await fetch("/api/page-keywords/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId,
+          pageKeywordIds: [mappingId],
+          checkAllActive: false,
+          pageKeywordDepths: { [mappingId]: depth },
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to check ranking");
+
+      const data = await res.json();
+      const result = data.results?.[0];
+      if (result?.success) {
+        const pos = result.position;
+        if (pos) {
+          toast.success(`Found at position #${pos} (depth: ${depth})`);
+        } else {
+          toast.info(`Not found in top ${depth} results`);
+        }
+      } else {
+        toast.error("Check failed");
+      }
+      fetchMappings();
+    } catch {
+      toast.error("Failed to check ranking");
     } finally {
       setIsChecking(false);
     }
@@ -327,7 +417,12 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
             {isChecking ? "Checking..." : "Check All Rankings"}
           </button>
           <button
-            onClick={() => setIsAdding(true)}
+            type="button"
+            onClick={() => {
+              console.log("[Add Mapping] clicked, current isAdding:", isAdding);
+              setIsAdding(true);
+              console.log("[Add Mapping] set isAdding to true");
+            }}
             className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <Plus className="h-4 w-4" />
@@ -339,112 +434,143 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
       {/* Add Form */}
       {isAdding && (
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Mapping</h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Page URL
-              </label>
-              <div className="relative">
-                <FileText className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="url"
-                  value={newMapping.pageUrl}
-                  onChange={(e) => setNewMapping({ ...newMapping, pageUrl: e.target.value })}
-                  placeholder="https://yoursite.com/page"
-                  className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
-                />
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Mappings</h3>
+          <div className="space-y-3">
+            {newMappings.map((mapping, index) => (
+              <div key={mapping.id} className="bg-gray-50/50 rounded-lg p-3 border border-gray-100">
+                {/* Row 1: Page URL & Keyword */}
+                <div className="grid gap-3 md:grid-cols-2 mb-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                      Page URL {index === 0 && "*"}
+                    </label>
+                    <input
+                      type="url"
+                      value={mapping.pageUrl}
+                      onChange={(e) => updateMappingRow(mapping.id, { pageUrl: e.target.value })}
+                      placeholder="https://yoursite.com/page"
+                      className="w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                      Keyword {index === 0 && "*"}
+                    </label>
+                    <input
+                      type="text"
+                      value={mapping.keyword}
+                      onChange={(e) => updateMappingRow(mapping.id, { keyword: e.target.value })}
+                      placeholder="e.g. best seo tools"
+                      className="w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2: Location, Device, Depth, Remove */}
+                <div className="grid gap-3 md:grid-cols-12 items-center">
+                  {/* Location */}
+                  <div className="md:col-span-4">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Location</label>
+                    <select
+                      value={mapping.geo}
+                      onChange={(e) => updateMappingRow(mapping.id, { geo: e.target.value })}
+                      className="w-full rounded-md border border-gray-300 bg-white py-2 px-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
+                    >
+                      {GEO_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Device */}
+                  <div className="md:col-span-3">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Device</label>
+                    <div className="flex rounded-md border border-gray-300 bg-white p-0.5">
+                      <button
+                        type="button"
+                        onClick={() => updateMappingRow(mapping.id, { device: "desktop" })}
+                        className={`flex-1 flex items-center justify-center gap-1 rounded p-1.5 text-sm transition-colors ${
+                          mapping.device === "desktop"
+                            ? "bg-brand-600 text-white"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                      >
+                        <Monitor className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">Desktop</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateMappingRow(mapping.id, { device: "mobile" })}
+                        className={`flex-1 flex items-center justify-center gap-1 rounded p-1.5 text-sm transition-colors ${
+                          mapping.device === "mobile"
+                            ? "bg-brand-600 text-white"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                      >
+                        <Smartphone className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">Mobile</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Depth */}
+                  <div className="md:col-span-4">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                      Depth: <span className="text-brand-600 font-medium">{mapping.checkDepth}</span>
+                    </label>
+                    <input
+                      type="range"
+                      min={20}
+                      max={100}
+                      step={10}
+                      value={mapping.checkDepth}
+                      onChange={(e) => updateMappingRow(mapping.id, { checkDepth: Number(e.target.value) })}
+                      className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand-600"
+                    />
+                  </div>
+
+                  {/* Remove */}
+                  <div className="md:col-span-1 flex justify-end">
+                    {newMappings.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeMappingRow(mapping.id)}
+                        className="flex items-center justify-center w-9 h-9 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                        title="Remove"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Target Keyword
-              </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  value={newMapping.keyword}
-                  onChange={(e) => setNewMapping({ ...newMapping, keyword: e.target.value })}
-                  placeholder="e.g. best seo tools"
-                  className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Location
-              </label>
-              <div className="relative">
-                <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <select
-                  value={newMapping.geo}
-                  onChange={(e) => setNewMapping({ ...newMapping, geo: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
-                >
-                  {GEO_OPTIONS.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Device
-              </label>
-              <div className="flex rounded-lg border border-gray-300 bg-white p-0.5">
-                <button
-                  type="button"
-                  onClick={() => setNewMapping({ ...newMapping, device: "desktop" })}
-                  className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                    newMapping.device === "desktop"
-                      ? "bg-brand-600 text-white"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  <Monitor className="h-4 w-4" />
-                  Desktop
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setNewMapping({ ...newMapping, device: "mobile" })}
-                  className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                    newMapping.device === "mobile"
-                      ? "bg-brand-600 text-white"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  <Smartphone className="h-4 w-4" />
-                  Mobile
-                </button>
-              </div>
-            </div>
+            ))}
           </div>
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Notes (optional)
-            </label>
-            <input
-              type="text"
-              value={newMapping.notes}
-              onChange={(e) => setNewMapping({ ...newMapping, notes: e.target.value })}
-              placeholder="e.g. Main product page, priority keyword"
-              className="w-full rounded-lg border border-gray-300 bg-white py-2.5 px-4 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
-            />
-          </div>
-          <div className="flex justify-end gap-3 mt-6">
+
+          {/* Add More Button & Actions */}
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
             <button
-              onClick={() => setIsAdding(false)}
-              className="px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+              type="button"
+              onClick={addMappingRow}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-brand-600 bg-brand-50 rounded-lg hover:bg-brand-100 transition-colors"
             >
-              Cancel
+              <Plus className="h-4 w-4" />
+              Add Another Mapping
             </button>
-            <button
-              onClick={handleAdd}
-              className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors"
-            >
-              Add Mapping
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsAdding(false)}
+                className="px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAdd}
+                className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors"
+              >
+                Add {newMappings.length} Mapping{newMappings.length > 1 ? "s" : ""}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -564,18 +690,25 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                         min="20"
                         max="100"
                         step="10"
-                        value={rowDepths[mapping.id] ?? numResults}
+                        value={rowDepths[mapping.id] ?? (mapping as any).checkDepth ?? 20}
                         onChange={(e) =>
                           setRowDepths((prev) => ({
                             ...prev,
                             [mapping.id]: parseInt(e.target.value),
                           }))
                         }
-                        className="h-2 w-28 rounded-lg bg-gray-200 accent-brand-600 cursor-pointer"
+                        className="h-2 w-20 rounded-lg bg-gray-200 accent-brand-600 cursor-pointer"
                       />
-                      <span className="text-xs text-gray-700 w-8 text-right">
-                        {rowDepths[mapping.id] ?? numResults}
+                      <span className="text-xs text-gray-700 w-6 text-right">
+                        {rowDepths[mapping.id] ?? (mapping as any).checkDepth ?? 20}
                       </span>
+                      <button
+                        onClick={() => handleCheckSingle(mapping.id)}
+                        disabled={isChecking}
+                        className="flex items-center gap-1 px-2 py-1 bg-brand-50 text-brand-600 rounded hover:bg-brand-100 disabled:opacity-50 text-xs font-medium transition-colors"
+                      >
+                        <Search className="h-3 w-3" />
+                      </button>
                     </div>
                   </td>
                   <td className="px-4 py-3">
@@ -635,7 +768,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
               ))}
               {mappings.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center">
+                  <td colSpan={6} className="px-4 py-12 text-center">
                     <div className="mx-auto max-w-sm">
                       <FileText className="mx-auto h-10 w-10 text-gray-300" />
                       <h3 className="mt-3 text-base font-medium text-gray-900">

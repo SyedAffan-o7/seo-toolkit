@@ -33,6 +33,7 @@ export class SerperProvider implements SerpProvider {
 
     const perPage = 10;
     const totalPages = Math.ceil(targetResults / perPage);
+    console.log(`[Serper] Starting search: keyword="${options.keyword}", targetResults=${targetResults}, totalPages=${totalPages}, geo=${options.geo}, device=${options.device}`);
 
     for (let page = 1; page <= totalPages; page++) {
       const body: Record<string, unknown> = {
@@ -107,18 +108,23 @@ export class SerperProvider implements SerpProvider {
       });
 
       if (organicResults.length < perPage) {
+        console.log(`[Serper] Stopping early: only got ${organicResults.length} results on page ${page} (expected ${perPage})`);
         break;
       }
 
       if (allResults.length >= targetResults) {
+        console.log(`[Serper] Reached target: have ${allResults.length}, need ${targetResults}`);
         break;
       }
+      console.log(`[Serper] Page ${page} complete, have ${allResults.length} total, continuing...`);
     }
 
+    const finalResults = allResults.slice(0, targetResults);
+    console.log(`[Serper] Finished search: requested=${targetResults}, fetched=${allResults.length}, returning=${finalResults.length}`);
     return {
-      results: allResults.slice(0, targetResults),
+      results: finalResults,
       serpFeatures: Array.from(new Set(allFeatures)),
-      totalResults: allResults.length,
+      totalResults: finalResults.length,
     };
   }
 }

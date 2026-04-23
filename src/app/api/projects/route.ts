@@ -13,7 +13,7 @@ function isPrismaKnownError(error: unknown): error is { code: string } {
 
 const createProjectSchema = z.object({
   name: z.string().min(1, "Project name is required"),
-  domain: z.string().min(1, "Domain is required"),
+  domain: z.string().optional(),
   description: z.string().optional(),
 });
 
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     const project = await prisma.project.create({
       data: {
         name: parsed.data.name.trim(),
-        domain: extractDomain(parsed.data.domain),
+        domain: parsed.data.domain ? extractDomain(parsed.data.domain) : "",
         description: parsed.data.description?.trim() || null,
       },
     });
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     if (isPrismaKnownError(error) && error.code === "P2002") {
       return NextResponse.json(
-        { error: "Project with same name + domain already exists" },
+        { error: "Project with same name already exists" },
         { status: 409 }
       );
     }

@@ -6,7 +6,7 @@ export default function SettingsPage() {
     <>
       <TopBar
         title="Settings"
-        subtitle="Project, provider, and integration preferences"
+        subtitle="Profile, provider, and integration preferences"
       />
 
       <div className="p-6 space-y-4">
@@ -38,7 +38,7 @@ export default function SettingsPage() {
               Data & Storage
             </div>
             <p className="mt-2 text-sm text-gray-600">
-              Project retention and sync options.
+              Profile retention and sync options.
             </p>
           </div>
 

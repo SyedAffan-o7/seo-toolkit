@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, FormEvent, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import TopBar from "@/components/layout/TopBar";
 import PageKeywordManager from "@/components/page-keywords/PageKeywordManager";
 import PageKeywordDashboard from "@/components/page-keywords/PageKeywordDashboard";
-import { LayoutDashboard, List, Plus, Globe, Loader2 } from "lucide-react";
+import { LayoutDashboard, List, Plus, Loader2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 // Simple Tabs component if not available
@@ -42,16 +43,20 @@ interface Project {
 }
 
 export default function PageRankingsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlProjectId = searchParams.get("projectId");
+  
   const [projects, setProjects] = useState<Project[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(urlProjectId || "");
   const [activeTab, setActiveTab] = useState<"dashboard" | "manage">("dashboard");
   const [isLoading, setIsLoading] = useState(true);
   
-  // Project creation state
+  // Profile creation state
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
-  const [newProjectDomain, setNewProjectDomain] = useState("");
   const [isCreatingProject, setIsCreatingProject] = useState(false);
+  const [isDeletingProject, setIsDeletingProject] = useState(false);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -62,7 +67,11 @@ export default function PageRankingsPage() {
       const projectsList = data.projects || [];
       setProjects(projectsList);
       
-      if (projectsList.length > 0 && !selectedProjectId) {
+      // If URL has projectId and it exists in the list, use it
+      // Otherwise select first project if none selected
+      if (urlProjectId && projectsList.find((p: Project) => p.id === urlProjectId)) {
+        setSelectedProjectId(urlProjectId);
+      } else if (projectsList.length > 0 && !selectedProjectId) {
         setSelectedProjectId(projectsList[0].id);
       }
     } catch (error) {
@@ -70,7 +79,7 @@ export default function PageRankingsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedProjectId]);
+  }, [selectedProjectId, urlProjectId]);
 
   useEffect(() => {
     fetchProjects();
@@ -78,8 +87,8 @@ export default function PageRankingsPage() {
 
   const handleCreateProject = async (e: FormEvent) => {
     e.preventDefault();
-    if (!newProjectName.trim() || !newProjectDomain.trim()) {
-      toast.error("Project name and domain are required");
+    if (!newProjectName.trim()) {
+      toast.error("Project name is required");
       return;
     }
 
@@ -90,7 +99,6 @@ export default function PageRankingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: newProjectName,
-          domain: newProjectDomain,
         }),
       });
 
@@ -104,18 +112,47 @@ export default function PageRankingsPage() {
       
       // Reset form
       setNewProjectName("");
-      setNewProjectDomain("");
       setShowCreateForm(false);
       
-      // Refresh projects and select the new one
+      // Refresh projects, update URL and select the new one
       await fetchProjects();
       if (data.project?.id) {
         setSelectedProjectId(data.project.id);
+        router.replace(`/rank-checker/pages?projectId=${data.project.id}`);
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to create project");
     } finally {
       setIsCreatingProject(false);
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    if (!selectedProjectId) return;
+    
+    const project = projects.find(p => p.id === selectedProjectId);
+    if (!project) return;
+
+    if (!confirm(`Are you sure you want to delete "${project.name}"? This will delete all keywords, rankings, and page mappings. This cannot be undone.`)) {
+      return;
+    }
+
+    setIsDeletingProject(true);
+    try {
+      const res = await fetch(`/api/projects/${selectedProjectId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error("Failed to delete profile");
+
+      toast.success(`Profile "${project.name}" deleted successfully`);
+      setSelectedProjectId("");
+      router.replace("/rank-checker/pages");
+      fetchProjects();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to delete profile");
+    } finally {
+      setIsDeletingProject(false);
     }
   };
 
@@ -138,25 +175,39 @@ export default function PageRankingsPage() {
       <TopBar title="Page Rankings" subtitle="Track where specific pages rank for their target keywords" />
       
       <div className="p-6 space-y-6">
-        {/* Project Selector */}
+        {/* Profile Selector */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <label className="text-sm font-medium text-gray-700">Project:</label>
+            <label className="text-sm font-medium text-gray-700">Profile:</label>
             <select
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
               className="rounded-lg border border-gray-300 bg-white py-2 px-4 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
             >
-              <option value="">Select a project...</option>
+              <option value="">Select a profile...</option>
               {projects.map((project) => (
                 <option key={project.id} value={project.id}>
                   {project.name} ({project.domain})
                 </option>
               ))}
             </select>
+            {selectedProjectId && (
+              <button
+                onClick={handleDeleteProject}
+                disabled={isDeletingProject}
+                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                title="Delete profile"
+              >
+                {isDeletingProject ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+              </button>
+            )}
             {projects.length === 0 && (
               <span className="text-sm text-amber-600">
-                No projects available. Create one first.
+                No profiles available. Create one first.
               </span>
             )}
           </div>
@@ -197,10 +248,10 @@ export default function PageRankingsPage() {
                   <Plus className="h-6 w-6 text-amber-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  No Projects Found
+                  No Profiles Found
                 </h3>
                 <p className="mt-2 text-sm text-gray-500">
-                  Create a project first to start tracking page rankings.
+                  Create a profile first to start tracking page rankings.
                 </p>
               </div>
               
@@ -210,13 +261,13 @@ export default function PageRankingsPage() {
                   className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors"
                 >
                   <Plus className="h-4 w-4" />
-                  Create New Project
+                  Create New Profile
                 </button>
               ) : (
                 <form onSubmit={handleCreateProject} className="mt-6 space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Project Name
+                      Profile Name
                     </label>
                     <input
                       type="text"
@@ -226,22 +277,6 @@ export default function PageRankingsPage() {
                       className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                       required
                     />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Domain
-                    </label>
-                    <div className="relative">
-                      <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                      <input
-                        type="text"
-                        value={newProjectDomain}
-                        onChange={(e) => setNewProjectDomain(e.target.value)}
-                        placeholder="example.com"
-                        className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
-                        required
-                      />
-                    </div>
                   </div>
                   <div className="flex gap-3">
                     <button

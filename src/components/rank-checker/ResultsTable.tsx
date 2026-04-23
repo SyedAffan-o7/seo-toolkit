@@ -1,16 +1,26 @@
 "use client";
 
+import { useState } from "react";
 import { SerpCheckResponse } from "@/types/serp";
 import PositionBadge from "./PositionBadge";
 import SerpFeatureBadge from "./SerpFeatureBadge";
-import { ExternalLink, Download, Trophy, AlertTriangle } from "lucide-react";
+import { ExternalLink, Download, Trophy, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ResultsTableProps {
   data: SerpCheckResponse;
 }
 
+const RESULTS_PER_PAGE = 10;
+
 export default function ResultsTable({ data }: ResultsTableProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(data.results.length / RESULTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * RESULTS_PER_PAGE;
+  const endIndex = startIndex + RESULTS_PER_PAGE;
+  const paginatedResults = data.results.slice(startIndex, endIndex);
+
   const handleExportCSV = () => {
     const headers = ["Position", "URL", "Domain", "Title", "Snippet", "Match", "SERP Features"];
     const rows = data.results.map((r) => [
@@ -143,7 +153,7 @@ export default function ResultsTable({ data }: ResultsTableProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {data.results.map((result) => (
+              {paginatedResults.map((result) => (
                 <tr
                   key={result.position}
                   className={cn(
@@ -197,6 +207,36 @@ export default function ResultsTable({ data }: ResultsTableProps) {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-gray-200 px-5 py-4">
+            <p className="text-sm text-gray-500">
+              Showing <span className="font-medium">{startIndex + 1}</span>-<span className="font-medium">{Math.min(endIndex, data.results.length)}</span> of <span className="font-medium">{data.results.length}</span> results
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </button>
+              <span className="text-sm text-gray-600">
+                Page <span className="font-medium">{currentPage}</span> of <span className="font-medium">{totalPages}</span>
+              </span>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
