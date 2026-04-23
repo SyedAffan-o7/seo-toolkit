@@ -11,6 +11,7 @@ interface PageKeyword {
   geo: string;
   device: "desktop" | "mobile";
   isActive: boolean;
+  checkDepth?: number;
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -103,8 +104,8 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
     try {
       const res = await fetch(`/api/page-keywords?projectId=${projectId}`);
       if (!res.ok) throw new Error("Failed to fetch");
-      const data = await res.json();
-      console.log("[fetchMappings] Loaded mappings with checkDepth:", data.map((m: any) => ({ id: m.id, keyword: m.keyword, checkDepth: m.checkDepth })));
+      const data: PageKeyword[] = await res.json();
+      console.log("[fetchMappings] Loaded mappings with checkDepth:", data.map((m) => ({ id: m.id, keyword: m.keyword, checkDepth: m.checkDepth })));
       setMappings(data);
     } catch {
       toast.error("Failed to load page-keyword mappings");
@@ -223,7 +224,7 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
       mappings
         .filter((m) => m.isActive)
         .forEach((m) => {
-          depths[m.id] = rowDepths[m.id] ?? (m as any).checkDepth ?? 20;
+          depths[m.id] = rowDepths[m.id] ?? m.checkDepth ?? 20;
         });
 
       console.log("[Bulk Check] Sending depths:", depths, "numResults:", numResults);
@@ -257,7 +258,7 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
     setIsChecking(true);
     try {
       // Use slider value if changed, otherwise use mapping's saved checkDepth
-      const depth = rowDepths[mappingId] ?? (mapping as any).checkDepth ?? 20;
+      const depth = rowDepths[mappingId] ?? mapping.checkDepth ?? 20;
       const res = await fetch("/api/page-keywords/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -690,7 +691,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                         min="20"
                         max="100"
                         step="10"
-                        value={rowDepths[mapping.id] ?? (mapping as any).checkDepth ?? 20}
+                        value={rowDepths[mapping.id] ?? mapping.checkDepth ?? 20}
                         onChange={(e) =>
                           setRowDepths((prev) => ({
                             ...prev,
@@ -700,7 +701,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                         className="h-2 w-20 rounded-lg bg-gray-200 accent-brand-600 cursor-pointer"
                       />
                       <span className="text-xs text-gray-700 w-6 text-right">
-                        {rowDepths[mapping.id] ?? (mapping as any).checkDepth ?? 20}
+                        {rowDepths[mapping.id] ?? mapping.checkDepth ?? 20}
                       </span>
                       <button
                         onClick={() => handleCheckSingle(mapping.id)}

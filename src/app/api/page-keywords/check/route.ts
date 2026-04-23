@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
         console.log(`[PageKeyword Check] Checking: "${mapping.keyword}" for ${normalizedPageUrl} (domain: ${pageDomain})`);
         
         const depthFromPayload = pageKeywordDepths?.[mapping.id];
-        const depthFromMapping = (mapping as any).checkDepth;
+        const depthFromMapping = (mapping as { checkDepth?: number }).checkDepth;
         const depth = depthFromPayload ?? depthFromMapping ?? numResults ?? 20;
 
         console.log(`[PageKeyword Check] Depth resolution: payload=${depthFromPayload}, mapping.checkDepth=${depthFromMapping}, numResults=${numResults}, final=${depth}`);
