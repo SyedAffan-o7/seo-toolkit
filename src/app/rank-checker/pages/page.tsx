@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, FormEvent, useCallback } from "react";
+import { useState, useEffect, FormEvent, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import TopBar from "@/components/layout/TopBar";
 import PageKeywordManager from "@/components/page-keywords/PageKeywordManager";
@@ -42,7 +42,7 @@ interface Project {
   domain: string;
 }
 
-export default function PageRankingsPage() {
+function PageRankingsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlProjectId = searchParams.get("projectId");
@@ -325,5 +325,20 @@ export default function PageRankingsPage() {
         )}
       </div>
     </>
+  );
+}
+
+export default function PageRankingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-10 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-64 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    }>
+      <PageRankingsContent />
+    </Suspense>
   );
 }
