@@ -279,7 +279,7 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
         if (pos) {
           toast.success(`Found at position #${pos} (depth: ${depth})`);
         } else {
-          toast.info(`Not found in top ${depth} results`);
+          toast(`Not found in top ${depth} results`, { icon: "ℹ️" });
         }
       } else {
         toast.error("Check failed");
