@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
       project: {
         id: project.id,
         name: project.name,
-        domain: project.domain,
+        domain: project.domain ?? "",
         description: project.description,
         createdAt: project.createdAt.toISOString(),
       },
