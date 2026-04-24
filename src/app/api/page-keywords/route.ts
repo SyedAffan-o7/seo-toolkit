@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
       include: {
         positions: {
           orderBy: { checkedAt: "desc" },
-          take: 1,
+          take: 30,
         },
         _count: {
           select: { positions: true },

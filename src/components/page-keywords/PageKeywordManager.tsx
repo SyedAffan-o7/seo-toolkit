@@ -372,6 +372,33 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
     return <span className="text-gray-600">#{position}</span>;
   };
 
+  // Get position closest to N days ago within a ±3 day window
+  const getPositionNDaysAgo = (
+    positions: PageKeyword["positions"],
+    daysAgo: number
+  ): number | null => {
+    if (!positions || positions.length === 0) return null;
+    const target = Date.now() - daysAgo * 24 * 60 * 60 * 1000;
+    const windowMs = 3 * 24 * 60 * 60 * 1000;
+    let best: { diff: number; position: number | null } | null = null;
+    for (const p of positions) {
+      const t = new Date(p.checkedAt).getTime();
+      const diff = Math.abs(t - target);
+      if (diff <= windowMs && (!best || diff < best.diff)) {
+        best = { diff, position: p.position };
+      }
+    }
+    return best ? best.position : null;
+  };
+
+  const getAvgPosition = (positions: PageKeyword["positions"]): number | null => {
+    if (!positions || positions.length === 0) return null;
+    const found = positions.filter((p) => p.position !== null) as { position: number }[];
+    if (found.length === 0) return null;
+    const sum = found.reduce((acc, p) => acc + p.position, 0);
+    return Math.round(sum / found.length);
+  };
+
   if (isLoading) {
     return <div className="p-6 text-center text-gray-500">Loading...</div>;
   }
@@ -595,7 +622,13 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                   Current Position
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Active
+                  Last Week
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  15 Days
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Avg Position
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Checks
@@ -685,6 +718,18 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                     )}
                   </td>
                   <td className="px-4 py-3">
+                    {getPositionBadge(getPositionNDaysAgo(mapping.positions, 7))}
+                  </td>
+                  <td className="px-4 py-3">
+                    {getPositionBadge(getPositionNDaysAgo(mapping.positions, 15))}
+                  </td>
+                  <td className="px-4 py-3">
+                    {getPositionBadge(getAvgPosition(mapping.positions))}
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {mapping._count.positions} check{mapping._count.positions === 1 ? "" : "s"}
+                    </p>
+                  </td>
+                  <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <input
                         type="range"
@@ -713,25 +758,21 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => handleToggleActive(mapping.id, mapping.isActive)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        mapping.isActive ? "bg-brand-600" : "bg-gray-200"
-                      }`}
-                      aria-label={mapping.isActive ? "Deactivate mapping" : "Activate mapping"}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                          mapping.isActive ? "translate-x-6" : "translate-x-1"
-                        }`}
-                      />
-                    </button>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-sm text-gray-600">{mapping._count.positions} checks</span>
-                  </td>
-                  <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => handleToggleActive(mapping.id, mapping.isActive)}
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                          mapping.isActive ? "bg-brand-600" : "bg-gray-200"
+                        }`}
+                        aria-label={mapping.isActive ? "Deactivate mapping" : "Activate mapping"}
+                        title={mapping.isActive ? "Active (click to deactivate)" : "Inactive (click to activate)"}
+                      >
+                        <span
+                          className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${
+                            mapping.isActive ? "translate-x-5" : "translate-x-0.5"
+                          }`}
+                        />
+                      </button>
                       {editingId === mapping.id ? (
                         <>
                           <button
@@ -769,7 +810,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
               ))}
               {mappings.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center">
+                  <td colSpan={9} className="px-4 py-12 text-center">
                     <div className="mx-auto max-w-sm">
                       <FileText className="mx-auto h-10 w-10 text-gray-300" />
                       <h3 className="mt-3 text-base font-medium text-gray-900">
