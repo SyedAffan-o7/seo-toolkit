@@ -51,7 +51,7 @@ function PageRankingsContent() {
   
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>(urlProjectId || "");
-  const [activeTab, setActiveTab] = useState<"dashboard" | "manage">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "manage">("manage");
   const [isLoading, setIsLoading] = useState(true);
   
   // Profile creation state

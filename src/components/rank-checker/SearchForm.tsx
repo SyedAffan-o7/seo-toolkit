@@ -33,7 +33,7 @@ export default function SearchForm({ onSubmit, isLoading }: SearchFormProps) {
   const [targetUrl, setTargetUrl] = useState("");
   const [geo, setGeo] = useState("us");
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
-  const [numResults, setNumResults] = useState(20);
+  const [numResults, setNumResults] = useState(10);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,7 +83,7 @@ export default function SearchForm({ onSubmit, isLoading }: SearchFormProps) {
 
       <div className="flex flex-wrap items-end gap-4">
         {/* Geo Select */}
-        <div className="flex-1 min-w-[140px]">
+        <div className="w-[320px] pr-8">
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Location
           </label>
@@ -101,13 +101,13 @@ export default function SearchForm({ onSubmit, isLoading }: SearchFormProps) {
         </div>
 
         {/* Depth Slider */}
-        <div className="flex-1 min-w-[140px]">
+        <div className="flex-1 max-w-[240px]">
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Search Depth: <span className="text-brand-600 font-semibold">{numResults}</span>
           </label>
           <input
             type="range"
-            min={20}
+            min={10}
             max={100}
             step={10}
             value={numResults}
@@ -115,13 +115,13 @@ export default function SearchForm({ onSubmit, isLoading }: SearchFormProps) {
             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand-600"
           />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>20</span>
+            <span>10</span>
             <span>100</span>
           </div>
         </div>
 
         {/* Device Toggle */}
-        <div className="flex-1 min-w-[140px]">
+        <div className="flex-1 max-w-[340px] pl-8 pr-8">
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Device
           </label>

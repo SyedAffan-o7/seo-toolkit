@@ -53,6 +53,8 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
   const [editingId, setEditingId] = useState<string | null>(null);
   const [numResults] = useState<number>(20);
   const [rowDepths, setRowDepths] = useState<Record<string, number>>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   interface NewMapping {
@@ -117,6 +119,10 @@ export default function PageKeywordManager({ projectId }: PageKeywordManagerProp
   useEffect(() => {
     fetchMappings();
   }, [fetchMappings]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [mappings.length]);
 
   const handleAdd = async () => {
     const validMappings = newMappings.filter(
@@ -639,7 +645,9 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {mappings.map((mapping) => (
+              {mappings
+                .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                .map((mapping) => (
                 <tr
                   key={mapping.id}
                   className={`transition-colors hover:bg-gray-50 ${
@@ -826,6 +834,34 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {mappings.length > itemsPerPage && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-gray-50">
+            <div className="text-sm text-gray-600">
+              Showing {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, mappings.length)} of {mappings.length} mappings
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-gray-600">
+                Page {currentPage} of {Math.ceil(mappings.length / itemsPerPage)}
+              </span>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(Math.ceil(mappings.length / itemsPerPage), p + 1))}
+                disabled={currentPage >= Math.ceil(mappings.length / itemsPerPage)}
+                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
