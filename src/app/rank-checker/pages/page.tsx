@@ -2,12 +2,12 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect, FormEvent, useCallback, Suspense } from "react";
+import { useState, useEffect, FormEvent, useCallback, Suspense, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import TopBar from "@/components/layout/TopBar";
 import PageKeywordManager from "@/components/page-keywords/PageKeywordManager";
 import PageKeywordDashboard from "@/components/page-keywords/PageKeywordDashboard";
-import { LayoutDashboard, List, Plus, Loader2, Trash2 } from "lucide-react";
+import { LayoutDashboard, List, Plus, Loader2, Trash2, AlertCircle, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
 
 // Simple Tabs component if not available
@@ -53,6 +53,9 @@ function PageRankingsContent() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(urlProjectId || "");
   const [activeTab, setActiveTab] = useState<"dashboard" | "manage">("manage");
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const selectedProjectIdRef = useRef(selectedProjectId);
+  selectedProjectIdRef.current = selectedProjectId;
   
   // Profile creation state
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -62,8 +65,12 @@ function PageRankingsContent() {
 
   const fetchProjects = useCallback(async () => {
     try {
+      setFetchError(null);
       const res = await fetch("/api/projects");
-      if (!res.ok) throw new Error("Failed to fetch");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `HTTP ${res.status}`);
+      }
       const data = await res.json();
       
       const projectsList = data.projects || [];
@@ -73,15 +80,18 @@ function PageRankingsContent() {
       // Otherwise select first project if none selected
       if (urlProjectId && projectsList.find((p: Project) => p.id === urlProjectId)) {
         setSelectedProjectId(urlProjectId);
-      } else if (projectsList.length > 0 && !selectedProjectId) {
+      } else if (projectsList.length > 0 && !selectedProjectIdRef.current) {
         setSelectedProjectId(projectsList[0].id);
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to fetch profiles";
+      setFetchError(message);
       console.error("Failed to fetch projects:", error);
     } finally {
       setIsLoading(false);
     }
-  }, [selectedProjectId, urlProjectId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlProjectId]);
 
   useEffect(() => {
     fetchProjects();
@@ -207,7 +217,12 @@ function PageRankingsContent() {
                 )}
               </button>
             )}
-            {projects.length === 0 && (
+            {fetchError ? (
+              <span className="text-sm text-red-600 flex items-center gap-1">
+                <AlertCircle className="h-4 w-4" />
+                {fetchError}
+              </span>
+            ) : projects.length === 0 && (
               <span className="text-sm text-amber-600">
                 No profiles available. Create one first.
               </span>
@@ -232,6 +247,26 @@ function PageRankingsContent() {
             </SimpleTabsTrigger>
           </SimpleTabsList>
         </div>
+
+        {/* Error Banner */}
+        {fetchError && (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-red-700">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>Could not load profiles: {fetchError}</span>
+            </div>
+            <button
+              onClick={() => {
+                setIsLoading(true);
+                fetchProjects();
+              }}
+              className="flex items-center gap-1 rounded-lg bg-red-100 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-200 transition-colors"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Retry
+            </button>
+          </div>
+        )}
 
         {/* Content */}
         {selectedProjectId ? (

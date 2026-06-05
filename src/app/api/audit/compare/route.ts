@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { extractDomain, domainMatch } from "@/lib/utils";
 import { getSerpProvider } from "@/lib/serp/provider";
+import { generateAiSuggestions } from "@/lib/ai/analyze";
+import { isAiEnabled } from "@/lib/ai/openai";
 import type { AuditCompareResponse, AuditSnapshot, AuditSuggestion, KeywordComparison } from "@/types/audit";
 
 const requestSchema = z.object({
@@ -9,6 +11,7 @@ const requestSchema = z.object({
   urls: z.array(z.string().url().min(1)).min(2).max(2),
   geo: z.string().optional().default("us"),
   device: z.enum(["desktop", "mobile"]).optional().default("desktop"),
+  useAI: z.boolean().optional().default(false),
 });
 
 // Expanded stopwords (100+ common English words)
@@ -921,7 +924,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { keyword, urls, geo, device } = parsed.data;
+    const { keyword, urls, geo, device, useAI } = parsed.data;
 
     // Fetch both pages AND Google SERP data in parallel
     const [[htmlA, htmlB], serpResult] = await Promise.all([
@@ -950,11 +953,65 @@ export async function POST(req: NextRequest) {
     // Compare keyword usage between your page and competitor
     const keywordComparison = buildKeywordComparison(auditA, auditB);
 
+    // Generate suggestions (AI or rule-based)
+    let suggestionsForFirst: AuditSuggestion[];
+    let suggestionsForSecond: AuditSuggestion[];
+
+    if (useAI && isAiEnabled()) {
+      try {
+        [suggestionsForFirst, suggestionsForSecond] = await Promise.all([
+          generateAiSuggestions({
+            keyword,
+            yourUrl: urls[0],
+            competitorUrl: urls[1],
+            yourAudit: auditA as unknown as Record<string, unknown>,
+            competitorAudit: auditB as unknown as Record<string, unknown>,
+            keywordComparison: keywordComparison as unknown as Record<string, unknown>,
+            top10Analysis: top10Analysis as unknown as Record<string, unknown> | null,
+            yourPosition: positionA,
+            competitorPosition: positionB,
+          }),
+          generateAiSuggestions({
+            keyword,
+            yourUrl: urls[1],
+            competitorUrl: urls[0],
+            yourAudit: auditB as unknown as Record<string, unknown>,
+            competitorAudit: auditA as unknown as Record<string, unknown>,
+            keywordComparison: {
+              ...keywordComparison,
+              primaryUsage: {
+                you: keywordComparison.primaryUsage.competitor,
+                competitor: keywordComparison.primaryUsage.you,
+              },
+              density: {
+                you: keywordComparison.density.competitor,
+                competitor: keywordComparison.density.you,
+              },
+              score: {
+                you: keywordComparison.score.competitor,
+                competitor: keywordComparison.score.you,
+              },
+            } as unknown as Record<string, unknown>,
+            top10Analysis: top10Analysis as unknown as Record<string, unknown> | null,
+            yourPosition: positionB,
+            competitorPosition: positionA,
+          }),
+        ]);
+      } catch (aiErr) {
+        console.error("[AI] Suggestion generation failed, falling back to rules:", aiErr);
+        suggestionsForFirst = generateSuggestions(auditA, auditB, top10Analysis);
+        suggestionsForSecond = generateSuggestions(auditB, auditA, top10Analysis);
+      }
+    } else {
+      suggestionsForFirst = generateSuggestions(auditA, auditB, top10Analysis);
+      suggestionsForSecond = generateSuggestions(auditB, auditA, top10Analysis);
+    }
+
     const response: AuditCompareResponse = {
       keyword,
       audits: [auditA, auditB],
-      suggestionsForFirst: generateSuggestions(auditA, auditB, top10Analysis),
-      suggestionsForSecond: generateSuggestions(auditB, auditA, top10Analysis),
+      suggestionsForFirst,
+      suggestionsForSecond,
       rankingComparison: {
         yourPosition: positionA,
         competitorPosition: positionB,

@@ -21,6 +21,7 @@ import {
   HelpCircle,
   Trophy,
   TrendingUp,
+  Sparkles,
 } from "lucide-react";
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -609,6 +610,7 @@ export default function AuditorPage() {
   const [yourUrl, setYourUrl] = useState("");
   const [competitorUrl, setCompetitorUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [useAI, setUseAI] = useState(true);
   const [result, setResult] = useState<AuditCompareResponse | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -627,6 +629,7 @@ export default function AuditorPage() {
         body: JSON.stringify({
           keyword: keyword.trim(),
           urls: [yourUrl.trim(), competitorUrl.trim()],
+          useAI,
         }),
       });
 
@@ -639,7 +642,7 @@ export default function AuditorPage() {
 
       const data: AuditCompareResponse = await res.json();
       setResult(data);
-      toast.success("Audit complete!");
+      toast.success(useAI ? "AI-powered audit complete!" : "Audit complete!");
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, "Something went wrong"));
     } finally {
@@ -720,23 +723,41 @@ export default function AuditorPage() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="flex items-center gap-2 rounded-lg bg-rose-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
+          <div className="flex items-center justify-between">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="flex items-center gap-2 rounded-lg bg-rose-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Auditing...
+                {useAI ? "AI Auditing..." : "Auditing..."}
               </>
             ) : (
               <>
                 <FileSearch className="h-4 w-4" />
-                Run Competitive Audit
+                {useAI ? "Run AI Audit" : "Run Audit"}
               </>
             )}
-          </button>
+            </button>
+
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={useAI}
+                  onChange={(e) => setUseAI(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+              </div>
+              <span className="flex items-center gap-1 text-sm font-medium text-gray-700">
+                <Sparkles className="h-3.5 w-3.5 text-brand-600" />
+                AI Suggestions
+              </span>
+            </label>
+          </div>
         </form>
 
         {/* Results */}
@@ -910,9 +931,17 @@ export default function AuditorPage() {
             {/* Suggestions */}
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-                <h3 className="text-base font-semibold text-gray-900">
-                  Suggestions for Your Page
-                </h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-semibold text-gray-900">
+                    Suggestions for Your Page
+                  </h3>
+                  {useAI && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 border border-brand-200">
+                      <Sparkles className="h-3 w-3" />
+                      AI
+                    </span>
+                  )}
+                </div>
                 {result.suggestionsForFirst.length === 0 ? (
                   <p className="text-sm text-green-600 flex items-center gap-1">
                     <CheckCircle2 className="h-4 w-4" />
