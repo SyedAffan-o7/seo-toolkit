@@ -389,21 +389,21 @@ export default function TrackerPage() {
 
         {/* ── Performance Dashboard ── */}
         {performance && selectedProjectId && (
-          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-            <div className="flex items-center gap-2 border-b border-gray-100 px-5 py-3">
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-3">
               <Trophy className="h-4 w-4 text-amber-500" />
-              <h3 className="text-sm font-semibold text-gray-900">Performance Overview</h3>
+              <h3 className="text-sm font-semibold text-slate-900">Performance Overview</h3>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-5">
               <div className="rounded-lg bg-indigo-50 p-3 text-center">
                 <p className="text-2xl font-bold text-indigo-700">{performance.totalKeywords}</p>
                 <p className="text-xs text-indigo-600 mt-1">Keywords</p>
               </div>
-              <div className="rounded-lg bg-gray-50 p-3 text-center">
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="rounded-lg bg-slate-50 p-3 text-center">
+                <p className="text-2xl font-bold text-slate-900">
                   {performance.averagePosition > 0 ? `#${performance.averagePosition}` : "—"}
                 </p>
-                <p className="text-xs text-gray-600 mt-1">Avg Position</p>
+                <p className="text-xs text-slate-600 mt-1">Avg Position</p>
               </div>
               <div className="rounded-lg bg-green-50 p-3 text-center">
                 <p className="text-2xl font-bold text-green-700">{performance.keywordsInTop10}</p>
@@ -431,13 +431,13 @@ export default function TrackerPage() {
 
             {/* Biggest win / loss + visibility */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-5 pb-5">
-              <div className="rounded-lg border border-gray-200 p-3">
-                <p className="text-xs font-medium text-gray-500 mb-1">Visibility Score</p>
+              <div className="rounded-lg border border-slate-200 p-3">
+                <p className="text-xs font-medium text-slate-500 mb-1">Visibility Score</p>
                 <div className="flex items-end gap-2">
                   <span className="text-3xl font-bold text-indigo-700">{performance.visibilityScore}</span>
-                  <span className="text-sm text-gray-500 mb-1">/100</span>
+                  <span className="text-sm text-slate-500 mb-1">/100</span>
                 </div>
-                <div className="mt-2 h-2 rounded-full bg-gray-100 overflow-hidden">
+                <div className="mt-2 h-2 rounded-full bg-slate-100 overflow-hidden">
                   <div
                     className="h-full rounded-full bg-indigo-500 transition-all"
                     style={{ width: `${performance.visibilityScore}%` }}
@@ -507,16 +507,16 @@ export default function TrackerPage() {
 
         {/* ── Create Project / Add Keyword Row ── */}
         <div className="grid gap-6 lg:grid-cols-2">
-          <form onSubmit={handleCreateProject} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm space-y-3">
+          <form onSubmit={handleCreateProject} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
             <div className="flex items-center gap-2">
               <Plus className="h-4 w-4 text-indigo-600" />
-              <h3 className="text-sm font-semibold text-gray-900">Create Project</h3>
+              <h3 className="text-sm font-semibold text-slate-900">Create Project</h3>
             </div>
             <input
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
               placeholder="Project name"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
             />
             <button
               type="submit"
@@ -528,25 +528,25 @@ export default function TrackerPage() {
             </button>
           </form>
 
-          <form onSubmit={handleCreateKeyword} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm space-y-3">
+          <form onSubmit={handleCreateKeyword} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
             <div className="flex items-center gap-2">
               <Search className="h-4 w-4 text-brand-600" />
-              <h3 className="text-sm font-semibold text-gray-900">Add Keyword To Track</h3>
+              <h3 className="text-sm font-semibold text-slate-900">Add Keyword To Track</h3>
             </div>
             <input
               value={keywordName}
               onChange={(e) => setKeywordName(e.target.value)}
               placeholder="best seo toolkit"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
             />
             <input
               value={targetUrl}
               onChange={(e) => setTargetUrl(e.target.value)}
               placeholder="https://yourdomain.com"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
             />
             <div className="grid grid-cols-2 gap-2">
-              <select value={geo} onChange={(e) => setGeo(e.target.value)} className="rounded-lg border border-gray-300 px-3 py-2 text-sm">
+              <select value={geo} onChange={(e) => setGeo(e.target.value)} className="rounded-lg border border-slate-300 px-3 py-2 text-sm">
                 {GEO_OPTIONS.map((item) => (
                   <option key={item.value} value={item.value}>
                     {item.label}
@@ -556,7 +556,7 @@ export default function TrackerPage() {
               <select
                 value={device}
                 onChange={(e) => setDevice(e.target.value as "desktop" | "mobile")}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
               >
                 <option value="desktop">Desktop</option>
                 <option value="mobile">Mobile</option>
@@ -575,11 +575,11 @@ export default function TrackerPage() {
 
         {/* ── Competitor Management ── */}
         {selectedProjectId && (
-          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-            <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3">
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-purple-500" />
-                <h3 className="text-sm font-semibold text-gray-900">
+                <h3 className="text-sm font-semibold text-slate-900">
                   Tracked Competitors ({competitors.length})
                 </h3>
               </div>
@@ -593,24 +593,24 @@ export default function TrackerPage() {
             </div>
 
             {showCompetitorForm && (
-              <form onSubmit={handleAddCompetitor} className="border-b border-gray-100 p-4 bg-purple-50">
+              <form onSubmit={handleAddCompetitor} className="border-b border-slate-100 p-4 bg-purple-50">
                 <div className="flex flex-wrap items-end gap-3">
                   <div className="flex-1 min-w-[200px]">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Domain *</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Domain *</label>
                     <input
                       value={competitorDomain}
                       onChange={(e) => setCompetitorDomain(e.target.value)}
                       placeholder="competitor.com"
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
                     />
                   </div>
                   <div className="flex-1 min-w-[150px]">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Label (optional)</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Label (optional)</label>
                     <input
                       value={competitorLabel}
                       onChange={(e) => setCompetitorLabel(e.target.value)}
                       placeholder="Main competitor"
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
                     />
                   </div>
                   <button
@@ -626,7 +626,7 @@ export default function TrackerPage() {
             )}
 
             {competitors.length > 0 ? (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-slate-100">
                 {competitors.map((comp, i) => (
                   <div key={comp.id} className="flex items-center justify-between px-5 py-3">
                     <div className="flex items-center gap-3">
@@ -635,13 +635,13 @@ export default function TrackerPage() {
                         style={{ backgroundColor: COMP_COLORS[i % COMP_COLORS.length] }}
                       />
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{comp.domain}</p>
-                        {comp.label && <p className="text-xs text-gray-500">{comp.label}</p>}
+                        <p className="text-sm font-medium text-slate-900">{comp.domain}</p>
+                        {comp.label && <p className="text-xs text-slate-500">{comp.label}</p>}
                       </div>
                     </div>
                     <button
                       onClick={() => handleDeleteCompetitor(comp.id)}
-                      className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+                      className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
                       title="Remove competitor"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -650,7 +650,7 @@ export default function TrackerPage() {
                 ))}
               </div>
             ) : (
-              <div className="p-5 text-center text-sm text-gray-500">
+              <div className="p-5 text-center text-sm text-slate-500">
                 No competitors tracked yet. Add competitors to see how they rank alongside you.
               </div>
             )}
@@ -658,12 +658,12 @@ export default function TrackerPage() {
         )}
 
         {/* ── Chart + Snapshot Controls ── */}
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm space-y-4">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
           <div className="flex flex-wrap items-center gap-3">
             <select
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
-              className="min-w-[240px] rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              className="min-w-[240px] rounded-lg border border-slate-300 px-3 py-2 text-sm"
             >
               <option value="">Select project</option>
               {projects.map((project) => (
@@ -676,7 +676,7 @@ export default function TrackerPage() {
             <select
               value={selectedKeywordId}
               onChange={(e) => setSelectedKeywordId(e.target.value)}
-              className="min-w-[280px] rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              className="min-w-[280px] rounded-lg border border-slate-300 px-3 py-2 text-sm"
               disabled={!selectedProjectId}
             >
               <option value="">Select tracked keyword</option>
@@ -702,7 +702,7 @@ export default function TrackerPage() {
             <div className="flex flex-wrap items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5">
                 <div className="h-2.5 w-2.5 rounded-full bg-indigo-500" />
-                <span className="text-gray-700 font-medium">Your Position</span>
+                <span className="text-slate-700 font-medium">Your Position</span>
               </div>
               {competitors.map((comp, i) => (
                 <div key={comp.id} className="flex items-center gap-1.5">
@@ -710,21 +710,21 @@ export default function TrackerPage() {
                     className="h-2.5 w-2.5 rounded-full"
                     style={{ backgroundColor: COMP_COLORS[i % COMP_COLORS.length] }}
                   />
-                  <span className="text-gray-700">{comp.label || comp.domain}</span>
+                  <span className="text-slate-700">{comp.label || comp.domain}</span>
                 </div>
               ))}
             </div>
           )}
 
           {/* Chart */}
-          <div className="h-80 rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <div className="h-80 rounded-lg border border-slate-200 bg-slate-50 p-3">
             {isLoadingHistory ? (
-              <div className="flex h-full items-center justify-center text-sm text-gray-500">
+              <div className="flex h-full items-center justify-center text-sm text-slate-500">
                 <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading history...
               </div>
             ) : chartData.length === 0 ? (
-              <div className="flex h-full flex-col items-center justify-center text-sm text-gray-500 gap-2">
-                <BarChart3 className="h-8 w-8 text-gray-300" />
+              <div className="flex h-full flex-col items-center justify-center text-sm text-slate-500 gap-2">
+                <BarChart3 className="h-8 w-8 text-slate-300" />
                 No snapshots yet. Run a snapshot to start trend tracking.
               </div>
             ) : (
@@ -763,7 +763,7 @@ export default function TrackerPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500">
+                <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
                   <th className="px-3 py-2">Checked</th>
                   <th className="px-3 py-2">Your Position</th>
                   {competitors.map((comp) => (
@@ -783,11 +783,11 @@ export default function TrackerPage() {
                     : 0;
 
                   return (
-                    <tr key={point.snapshotId} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-3 py-2 text-gray-600">{new Date(point.checkedAt).toLocaleString()}</td>
+                    <tr key={point.snapshotId} className="border-b border-slate-100 hover:bg-slate-50">
+                      <td className="px-3 py-2 text-slate-600">{new Date(point.checkedAt).toLocaleString()}</td>
                       <td className="px-3 py-2">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-gray-900">
+                          <span className="font-semibold text-slate-900">
                             {point.targetPosition ? `#${point.targetPosition}` : "Not Found"}
                           </span>
                           {posChange > 0 && (
@@ -805,14 +805,14 @@ export default function TrackerPage() {
                       {competitors.map((comp) => {
                         const compData = point.competitors?.find((c) => c.competitorId === comp.id);
                         return (
-                          <td key={comp.id} className="px-3 py-2 text-gray-700">
+                          <td key={comp.id} className="px-3 py-2 text-slate-700">
                             {compData?.position ? `#${compData.position}` : compData?.found === false ? "Not Found" : "—"}
                           </td>
                         );
                       })}
-                      <td className="px-3 py-2 text-gray-600">{point.totalResults?.toLocaleString() || "—"}</td>
+                      <td className="px-3 py-2 text-slate-600">{point.totalResults?.toLocaleString() || "—"}</td>
                       <td className="px-3 py-2">
-                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
                           {point.provider}
                         </span>
                       </td>
@@ -823,7 +823,7 @@ export default function TrackerPage() {
             </table>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-gray-500">
+          <div className="flex items-center gap-2 text-xs text-slate-500">
             <BarChart3 className="h-4 w-4" />
             Lower position is better (1 = top result). Dashed lines = competitors.
           </div>

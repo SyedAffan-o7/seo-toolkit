@@ -15,7 +15,7 @@ export default function PositionBadge({
     return (
       <span
         className={cn(
-          "inline-flex items-center justify-center rounded-full bg-gray-100 font-medium text-gray-500",
+          "inline-flex items-center justify-center rounded-full bg-slate-100 font-medium text-slate-400",
           size === "sm" && "h-6 w-6 text-xs",
           size === "md" && "h-8 w-8 text-sm",
           size === "lg" && "h-12 w-12 text-base"
@@ -27,16 +27,16 @@ export default function PositionBadge({
   }
 
   const getColor = (pos: number) => {
-    if (pos <= 3) return "bg-emerald-100 text-emerald-700 ring-emerald-600/20";
-    if (pos <= 10) return "bg-blue-100 text-blue-700 ring-blue-600/20";
-    if (pos <= 20) return "bg-amber-100 text-amber-700 ring-amber-600/20";
-    return "bg-red-100 text-red-700 ring-red-600/20";
+    if (pos <= 3) return "bg-emerald-50 text-emerald-700 ring-emerald-500/30";
+    if (pos <= 10) return "bg-blue-50 text-blue-700 ring-blue-500/30";
+    if (pos <= 20) return "bg-amber-50 text-amber-700 ring-amber-500/30";
+    return "bg-red-50 text-red-700 ring-red-500/30";
   };
 
   return (
     <span
       className={cn(
-        "inline-flex items-center justify-center rounded-full font-bold ring-1 ring-inset",
+        "inline-flex items-center justify-center rounded-full font-bold ring-1 ring-inset shadow-sm",
         getColor(position),
         size === "sm" && "h-6 w-6 text-xs",
         size === "md" && "h-8 w-8 text-sm",

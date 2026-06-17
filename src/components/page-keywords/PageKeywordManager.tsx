@@ -372,10 +372,10 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
 }
  
   const getPositionBadge = (position: number | null) => {
-    if (position === null) return <span className="text-gray-400">Not found</span>;
+    if (position === null) return <span className="text-slate-400">Not found</span>;
     if (position <= 3) return <span className="text-emerald-600 font-semibold">#{position}</span>;
     if (position <= 10) return <span className="text-amber-600 font-medium">#{position}</span>;
-    return <span className="text-gray-600">#{position}</span>;
+    return <span className="text-slate-600">#{position}</span>;
   };
 
   // Get position closest to N days ago within a ±3 day window
@@ -406,7 +406,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
   };
 
   if (isLoading) {
-    return <div className="p-6 text-center text-gray-500">Loading...</div>;
+    return <div className="p-6 text-center text-slate-500">Loading...</div>;
   }
 
   return (
@@ -414,8 +414,8 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Page → Keyword Rankings</h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <h2 className="text-xl font-semibold text-slate-900">Page → Keyword Rankings</h2>
+          <p className="text-sm text-slate-500 mt-1">
             {mappings.length} mappings · {mappings.filter(m => m.isActive).length} active
           </p>
         </div>
@@ -430,14 +430,14 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
           <button
             onClick={handleImportClick}
             disabled={isImporting}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition-colors"
           >
             <Upload className="h-4 w-4" />
             {isImporting ? "Importing..." : "Import CSV"}
           </button>
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
           >
             <Download className="h-4 w-4" />
             Export CSV
@@ -457,7 +457,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
               setIsAdding(true);
               console.log("[Add Mapping] set isAdding to true");
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
           >
             <Plus className="h-4 w-4" />
             Add Mapping
@@ -467,15 +467,15 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
 
       {/* Add Form */}
       {isAdding && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Mappings</h3>
+        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+          <h3 className="text-lg font-medium text-slate-900 mb-4">Add New Mappings</h3>
           <div className="space-y-3">
             {newMappings.map((mapping, index) => (
-              <div key={mapping.id} className="bg-gray-50/50 rounded-lg p-3 border border-gray-100">
+              <div key={mapping.id} className="bg-slate-50/50 rounded-lg p-3 border border-slate-100">
                 {/* Row 1: Page URL & Keyword */}
                 <div className="grid gap-3 md:grid-cols-2 mb-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                    <label className="block text-xs font-medium text-slate-500 mb-1">
                       Page URL {index === 0 && "*"}
                     </label>
                     <input
@@ -483,11 +483,11 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                       value={mapping.pageUrl}
                       onChange={(e) => updateMappingRow(mapping.id, { pageUrl: e.target.value })}
                       placeholder="https://yoursite.com/page"
-                      className="w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
+                      className="w-full rounded-md border border-slate-300 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                    <label className="block text-xs font-medium text-slate-500 mb-1">
                       Keyword {index === 0 && "*"}
                     </label>
                     <input
@@ -495,7 +495,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                       value={mapping.keyword}
                       onChange={(e) => updateMappingRow(mapping.id, { keyword: e.target.value })}
                       placeholder="e.g. best seo tools"
-                      className="w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
+                      className="w-full rounded-md border border-slate-300 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
                     />
                   </div>
                 </div>
@@ -504,11 +504,11 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                 <div className="grid gap-3 md:grid-cols-12 items-center">
                   {/* Location */}
                   <div className="md:col-span-4">
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Location</label>
+                    <label className="block text-xs font-medium text-slate-500 mb-1">Location</label>
                     <select
                       value={mapping.geo}
                       onChange={(e) => updateMappingRow(mapping.id, { geo: e.target.value })}
-                      className="w-full rounded-md border border-gray-300 bg-white py-2 px-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
+                      className="w-full rounded-md border border-slate-300 bg-white py-2 px-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
                     >
                       {GEO_OPTIONS.map(opt => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -518,15 +518,15 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
 
                   {/* Device */}
                   <div className="md:col-span-3">
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Device</label>
-                    <div className="flex rounded-md border border-gray-300 bg-white p-0.5">
+                    <label className="block text-xs font-medium text-slate-500 mb-1">Device</label>
+                    <div className="flex rounded-md border border-slate-300 bg-white p-0.5">
                       <button
                         type="button"
                         onClick={() => updateMappingRow(mapping.id, { device: "desktop" })}
                         className={`flex-1 flex items-center justify-center gap-1 rounded p-1.5 text-sm transition-colors ${
                           mapping.device === "desktop"
                             ? "bg-brand-600 text-white"
-                            : "text-gray-500 hover:text-gray-700"
+                            : "text-slate-500 hover:text-slate-700"
                         }`}
                       >
                         <Monitor className="h-3.5 w-3.5" />
@@ -538,7 +538,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                         className={`flex-1 flex items-center justify-center gap-1 rounded p-1.5 text-sm transition-colors ${
                           mapping.device === "mobile"
                             ? "bg-brand-600 text-white"
-                            : "text-gray-500 hover:text-gray-700"
+                            : "text-slate-500 hover:text-slate-700"
                         }`}
                       >
                         <Smartphone className="h-3.5 w-3.5" />
@@ -549,7 +549,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
 
                   {/* Depth */}
                   <div className="md:col-span-4">
-                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                    <label className="block text-xs font-medium text-slate-500 mb-1">
                       Depth: <span className="text-brand-600 font-medium">{mapping.checkDepth}</span>
                     </label>
                     <input
@@ -559,7 +559,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                       step={10}
                       value={mapping.checkDepth}
                       onChange={(e) => updateMappingRow(mapping.id, { checkDepth: Number(e.target.value) })}
-                      className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand-600"
+                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-600"
                     />
                   </div>
 
@@ -569,7 +569,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                       <button
                         type="button"
                         onClick={() => removeMappingRow(mapping.id)}
-                        className="flex items-center justify-center w-9 h-9 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                        className="flex items-center justify-center w-9 h-9 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                         title="Remove"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -582,7 +582,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
           </div>
 
           {/* Add More Button & Actions */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
             <button
               type="button"
               onClick={addMappingRow}
@@ -594,7 +594,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
             <div className="flex gap-3">
               <button
                 onClick={() => setIsAdding(false)}
-                className="px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+                className="px-4 py-2 text-slate-700 hover:text-slate-900 transition-colors"
               >
                 Cancel
               </button>
@@ -610,47 +610,47 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
       )}
 
       {/* Mappings Table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50/50">
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <tr className="border-b border-slate-200 bg-slate-50/50">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   Page URL
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   Keyword
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   Location/Device
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   Current Position
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   Last Week
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   15 Days
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   Avg Position
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   Checks
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {mappings
                 .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                 .map((mapping) => (
                 <tr
                   key={mapping.id}
-                  className={`transition-colors hover:bg-gray-50 ${
+                  className={`transition-colors hover:bg-slate-50 ${
                     !mapping.isActive ? "opacity-60" : ""
                   }`}
                 >
@@ -665,9 +665,9 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                       >
                         {new URL(mapping.pageUrl).pathname || "/"}
                       </a>
-                      <ExternalLink className="h-3 w-3 text-gray-400 shrink-0" />
+                      <ExternalLink className="h-3 w-3 text-slate-400 shrink-0" />
                     </div>
-                    <p className="text-xs text-gray-400 truncate max-w-[220px]">
+                    <p className="text-xs text-slate-400 truncate max-w-[220px]">
                       {new URL(mapping.pageUrl).hostname}
                     </p>
                   </td>
@@ -677,10 +677,10 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                         type="text"
                         value={editMapping.keyword}
                         onChange={(e) => setEditMapping({ ...editMapping, keyword: e.target.value })}
-                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                        className="w-full rounded border border-slate-300 px-2 py-1 text-sm"
                       />
                     ) : (
-                      <span className="text-sm font-medium text-gray-900">{mapping.keyword}</span>
+                      <span className="text-sm font-medium text-slate-900">{mapping.keyword}</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -689,7 +689,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                         <select
                           value={editMapping.geo}
                           onChange={(e) => setEditMapping({ ...editMapping, geo: e.target.value })}
-                          className="rounded border border-gray-300 px-2 py-1 text-sm"
+                          className="rounded border border-slate-300 px-2 py-1 text-sm"
                         >
                           {GEO_OPTIONS.map(opt => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -698,17 +698,17 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                         <select
                           value={editMapping.device}
                           onChange={(e) => setEditMapping({ ...editMapping, device: e.target.value as "desktop" | "mobile" })}
-                          className="rounded border border-gray-300 px-2 py-1 text-sm"
+                          className="rounded border border-slate-300 px-2 py-1 text-sm"
                         >
                           <option value="desktop">Desktop</option>
                           <option value="mobile">Mobile</option>
                         </select>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-slate-600">
                         <Globe className="h-3.5 w-3.5" />
                         {mapping.geo.toUpperCase()}
-                        <span className="text-gray-300">|</span>
+                        <span className="text-slate-300">|</span>
                         {mapping.device === "desktop" ? (
                           <Monitor className="h-3.5 w-3.5" />
                         ) : (
@@ -720,7 +720,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                   <td className="px-4 py-3">
                     {getPositionBadge(mapping.positions[0]?.position ?? null)}
                     {mapping.positions[0]?.checkedAt && (
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-slate-400 mt-0.5">
                         {new Date(mapping.positions[0].checkedAt).toLocaleDateString()}
                       </p>
                     )}
@@ -733,7 +733,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                   </td>
                   <td className="px-4 py-3">
                     {getPositionBadge(getAvgPosition(mapping.positions))}
-                    <p className="text-xs text-gray-400 mt-0.5">
+                    <p className="text-xs text-slate-400 mt-0.5">
                       {mapping._count.positions} check{mapping._count.positions === 1 ? "" : "s"}
                     </p>
                   </td>
@@ -751,9 +751,9 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                             [mapping.id]: parseInt(e.target.value),
                           }))
                         }
-                        className="h-2 w-20 rounded-lg bg-gray-200 accent-brand-600 cursor-pointer"
+                        className="h-2 w-20 rounded-lg bg-slate-200 accent-brand-600 cursor-pointer"
                       />
-                      <span className="text-xs text-gray-700 w-6 text-right">
+                      <span className="text-xs text-slate-700 w-6 text-right">
                         {rowDepths[mapping.id] ?? mapping.checkDepth ?? 20}
                       </span>
                       <button
@@ -770,7 +770,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                       <button
                         onClick={() => handleToggleActive(mapping.id, mapping.isActive)}
                         className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                          mapping.isActive ? "bg-brand-600" : "bg-gray-200"
+                          mapping.isActive ? "bg-brand-600" : "bg-slate-200"
                         }`}
                         aria-label={mapping.isActive ? "Deactivate mapping" : "Activate mapping"}
                         title={mapping.isActive ? "Active (click to deactivate)" : "Inactive (click to activate)"}
@@ -791,7 +791,7 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                           </button>
                           <button
                             onClick={() => setEditingId(null)}
-                            className="p-1.5 text-gray-500 hover:bg-gray-100 rounded transition-colors"
+                            className="p-1.5 text-slate-500 hover:bg-slate-100 rounded transition-colors"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -800,13 +800,13 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                         <>
                           <button
                             onClick={() => startEditing(mapping)}
-                            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                            className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(mapping.id)}
-                            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                            className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -820,11 +820,11 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
                 <tr>
                   <td colSpan={9} className="px-4 py-12 text-center">
                     <div className="mx-auto max-w-sm">
-                      <FileText className="mx-auto h-10 w-10 text-gray-300" />
-                      <h3 className="mt-3 text-base font-medium text-gray-900">
+                      <FileText className="mx-auto h-10 w-10 text-slate-300" />
+                      <h3 className="mt-3 text-base font-medium text-slate-900">
                         No mappings yet
                       </h3>
-                      <p className="mt-1 text-sm text-gray-500">
+                      <p className="mt-1 text-sm text-slate-500">
                         Add page → keyword mappings to start tracking rankings
                       </p>
                     </div>
@@ -837,25 +837,25 @@ const handleToggleActive = async (id: string,currentActive:boolean)=>{
 
         {/* Pagination */}
         {mappings.length > itemsPerPage && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-gray-50">
-            <div className="text-sm text-gray-600">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
+            <div className="text-sm text-slate-600">
               Showing {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, mappings.length)} of {mappings.length} mappings
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Previous
               </button>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-slate-600">
                 Page {currentPage} of {Math.ceil(mappings.length / itemsPerPage)}
               </span>
               <button
                 onClick={() => setCurrentPage(p => Math.min(Math.ceil(mappings.length / itemsPerPage), p + 1))}
                 disabled={currentPage >= Math.ceil(mappings.length / itemsPerPage)}
-                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Next
               </button>

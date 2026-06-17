@@ -47,18 +47,18 @@ export default function ResultsTable({ data }: ResultsTableProps) {
       {/* Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Position Card */}
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-500">Your Position</p>
+              <p className="text-sm font-medium text-slate-500">Your Position</p>
               <div className="mt-2 flex items-center gap-2">
                 {data.targetPosition !== null ? (
                   <>
                     <PositionBadge position={data.targetPosition} size="lg" />
-                    <span className="text-lg font-semibold text-gray-900">
+                    <span className="text-lg font-semibold text-slate-900">
                       Position #{data.targetPosition}
                     </span>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-slate-500">
                       of {data.results.length} checked
                     </span>
                   </>
@@ -81,56 +81,56 @@ export default function ResultsTable({ data }: ResultsTableProps) {
         </div>
 
         {/* Domain Card */}
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Target Domain</p>
-          <p className="mt-2 text-lg font-semibold text-gray-900 truncate">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">Target Domain</p>
+          <p className="mt-2 text-lg font-semibold text-slate-900 truncate">
             {data.targetDomain}
           </p>
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-slate-400">
             {data.device} &middot; {data.geo.toUpperCase()}
           </p>
         </div>
 
         {/* Total Results Card */}
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Total Results</p>
-          <p className="mt-2 text-lg font-semibold text-gray-900">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">Total Results</p>
+          <p className="mt-2 text-lg font-semibold text-slate-900">
             {data.totalResults.toLocaleString()}
           </p>
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-slate-400">
             Checked {new Date(data.checkedAt).toLocaleString()}
           </p>
         </div>
 
         {/* SERP Features Card */}
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">SERP Features</p>
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">SERP Features</p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {data.serpFeatures.length > 0 ? (
               data.serpFeatures.map((f) => (
                 <SerpFeatureBadge key={f} feature={f} />
               ))
             ) : (
-              <span className="text-sm text-gray-400">None detected</span>
+              <span className="text-sm text-slate-400">None detected</span>
             )}
           </div>
         </div>
       </div>
 
       {/* Results Table */}
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
           <div>
-            <h3 className="text-base font-semibold text-gray-900">
+            <h3 className="text-base font-semibold text-slate-900">
               SERP Results for &ldquo;{data.keyword}&rdquo;
             </h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-slate-500">
               Top {data.results.length} organic results checked
             </p>
           </div>
           <button
             onClick={handleExportCSV}
-            className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
           >
             <Download className="h-4 w-4" />
             Export CSV
@@ -140,24 +140,24 @@ export default function ResultsTable({ data }: ResultsTableProps) {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/50">
-                <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <tr className="border-b border-slate-100 bg-slate-50/50">
+                <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   #
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   Page
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                   Features
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {paginatedResults.map((result) => (
                 <tr
                   key={result.position}
                   className={cn(
-                    "transition-colors hover:bg-gray-50",
+                    "transition-colors hover:bg-slate-50",
                     result.isTargetMatch && "bg-brand-50/50 hover:bg-brand-50"
                   )}
                 >
@@ -180,7 +180,7 @@ export default function ResultsTable({ data }: ResultsTableProps) {
                         >
                           {result.title}
                         </a>
-                        <ExternalLink className="h-3 w-3 shrink-0 text-gray-400" />
+                        <ExternalLink className="h-3 w-3 shrink-0 text-slate-400" />
                         {result.isTargetMatch && (
                           <span className="shrink-0 rounded-full bg-brand-100 px-2 py-0.5 text-xs font-bold text-brand-700">
                             YOUR SITE
@@ -190,7 +190,7 @@ export default function ResultsTable({ data }: ResultsTableProps) {
                       <p className="mt-0.5 text-xs text-emerald-700 truncate">
                         {result.url}
                       </p>
-                      <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+                      <p className="mt-1 text-sm text-slate-500 line-clamp-2">
                         {result.snippet}
                       </p>
                     </div>
@@ -210,26 +210,26 @@ export default function ResultsTable({ data }: ResultsTableProps) {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-200 px-5 py-4">
-            <p className="text-sm text-gray-500">
+          <div className="flex items-center justify-between border-t border-slate-200 px-5 py-4">
+            <p className="text-sm text-slate-500">
               Showing <span className="font-medium">{startIndex + 1}</span>-<span className="font-medium">{Math.min(endIndex, data.results.length)}</span> of <span className="font-medium">{data.results.length}</span> results
             </p>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft className="h-4 w-4" />
                 Previous
               </button>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-slate-600">
                 Page <span className="font-medium">{currentPage}</span> of <span className="font-medium">{totalPages}</span>
               </span>
               <button
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Next
                 <ChevronRight className="h-4 w-4" />

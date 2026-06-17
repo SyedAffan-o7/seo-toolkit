@@ -127,21 +127,21 @@ export default function ComparePage() {
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-5"
+          className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-5"
         >
           {/* Keyword */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Target Keyword
             </label>
             <div className="relative max-w-lg">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 placeholder="e.g. best CRM software"
-                className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
+                className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
                 required
               />
             </div>
@@ -149,30 +149,30 @@ export default function ComparePage() {
 
           {/* URLs */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               URLs / Domains to Compare
             </label>
             <div className="space-y-2">
               {urls.map((url, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-500">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-medium text-slate-500">
                     {i + 1}
                   </span>
                   <div className="relative flex-1 max-w-lg">
-                    <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <input
                       type="text"
                       value={url}
                       onChange={(e) => updateUrl(i, e.target.value)}
                       placeholder={`e.g. competitor${i + 1}.com`}
-                      className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
+                      className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
                     />
                   </div>
                   {urls.length > 2 && (
                     <button
                       type="button"
                       onClick={() => removeUrl(i)}
-                      className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+                      className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -195,13 +195,13 @@ export default function ComparePage() {
           {/* Geo + Device + Submit */}
           <div className="flex flex-wrap items-end gap-4">
             <div className="min-w-[180px]">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 Location
               </label>
               <select
                 value={geo}
                 onChange={(e) => setGeo(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
+                className="w-full rounded-lg border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
               >
                 {GEO_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -212,17 +212,17 @@ export default function ComparePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 Device
               </label>
-              <div className="flex rounded-lg border border-gray-300 bg-white p-0.5">
+              <div className="flex rounded-lg border border-slate-300 bg-white p-0.5">
                 <button
                   type="button"
                   onClick={() => setDevice("desktop")}
                   className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                     device === "desktop"
                       ? "bg-brand-600 text-white shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
+                      : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   <Monitor className="h-4 w-4" />
@@ -234,7 +234,7 @@ export default function ComparePage() {
                   className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                     device === "mobile"
                       ? "bg-brand-600 text-white shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
+                      : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   <Smartphone className="h-4 w-4" />
@@ -267,20 +267,20 @@ export default function ComparePage() {
         {result && (
           <div className="space-y-6">
             {/* Comparison Summary */}
-            <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+            <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900">
+                  <h3 className="text-base font-semibold text-slate-900">
                     Comparison for &ldquo;{result.keyword}&rdquo;
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-slate-500">
                     {result.comparisons.filter((c: UrlComparison) => c.found).length} of{" "}
                     {result.comparisons.length} URLs found in top 20
                   </p>
                 </div>
                 <button
                   onClick={handleExportCSV}
-                  className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                 >
                   <Download className="h-4 w-4" />
                   Export CSV
@@ -301,10 +301,10 @@ export default function ComparePage() {
                   >
                     <div className="flex items-start justify-between">
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-gray-900 truncate">
+                        <p className="text-sm font-semibold text-slate-900 truncate">
                           {comp.domain}
                         </p>
-                        <p className="text-xs text-gray-500 truncate mt-0.5">
+                        <p className="text-xs text-slate-500 truncate mt-0.5">
                           {comp.url}
                         </p>
                       </div>
@@ -333,12 +333,12 @@ export default function ComparePage() {
             </div>
 
             {/* Full SERP Results */}
-            <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-              <div className="border-b border-gray-200 px-5 py-4">
-                <h3 className="text-base font-semibold text-gray-900">
+            <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="border-b border-slate-200 px-5 py-4">
+                <h3 className="text-base font-semibold text-slate-900">
                   Full SERP Results
                 </h3>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-slate-500">
                   Top {result.results.length} organic results &middot;{" "}
                   {result.device} &middot; {result.geo.toUpperCase()}
                 </p>
@@ -346,24 +346,24 @@ export default function ComparePage() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-100 bg-gray-50/50">
-                      <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    <tr className="border-b border-slate-100 bg-slate-50/50">
+                      <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                         #
                       </th>
-                      <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                      <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                         Page
                       </th>
-                      <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                      <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                         Features
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-slate-100">
                     {result.results.map((r) => (
                       <tr
                         key={r.position}
                         className={cn(
-                          "transition-colors hover:bg-gray-50",
+                          "transition-colors hover:bg-slate-50",
                           r.isTargetMatch &&
                             "bg-brand-50/50 hover:bg-brand-50"
                         )}
@@ -387,7 +387,7 @@ export default function ComparePage() {
                               >
                                 {r.title}
                               </a>
-                              <ExternalLink className="h-3 w-3 shrink-0 text-gray-400" />
+                              <ExternalLink className="h-3 w-3 shrink-0 text-slate-400" />
                               {r.isTargetMatch && (
                                 <span className="shrink-0 rounded-full bg-brand-100 px-2 py-0.5 text-xs font-bold text-brand-700">
                                   COMPARED
@@ -397,7 +397,7 @@ export default function ComparePage() {
                             <p className="mt-0.5 text-xs text-emerald-700 truncate">
                               {r.url}
                             </p>
-                            <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+                            <p className="mt-1 text-sm text-slate-500 line-clamp-2">
                               {r.snippet}
                             </p>
                           </div>
@@ -420,15 +420,15 @@ export default function ComparePage() {
 
         {/* Empty State */}
         {!result && !isLoading && (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-white p-12">
+          <div className="rounded-xl border border-dashed border-slate-300 bg-white p-12">
             <div className="mx-auto max-w-md text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50">
                 <GitCompareArrows className="h-6 w-6 text-emerald-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-slate-900">
                 Compare Multiple URLs
               </h3>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-slate-500">
                 Enter a keyword and multiple URLs/domains to compare their
                 rankings. Find out who ranks, who doesn&apos;t, and identify content
                 gaps.

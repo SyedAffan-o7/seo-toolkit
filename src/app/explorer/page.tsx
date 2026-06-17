@@ -11,13 +11,13 @@ export default function ExplorerPage() {
       />
 
       <div className="p-6 space-y-6">
-        <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
           <div className="mx-auto max-w-2xl text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-50">
               <Compass className="h-6 w-6 text-amber-600" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">SERP Explorer</h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <h2 className="text-xl font-semibold text-slate-900">SERP Explorer</h2>
+            <p className="mt-2 text-sm text-slate-600">
               This section is being expanded. For now, use the implemented
               modules below to run one-off SERP checks and multi-URL comparisons.
             </p>
@@ -27,12 +27,12 @@ export default function ExplorerPage() {
         <div className="grid gap-4 md:grid-cols-2">
           <Link
             href="/rank-checker"
-            className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-colors hover:border-brand-300"
+            className="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:border-brand-300"
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-semibold text-gray-900">Rank Checker</p>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="text-sm font-semibold text-slate-900">Rank Checker</p>
+                <p className="mt-1 text-sm text-slate-600">
                   Check where a domain ranks for a keyword.
                 </p>
               </div>
@@ -46,12 +46,12 @@ export default function ExplorerPage() {
 
           <Link
             href="/compare"
-            className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-colors hover:border-emerald-300"
+            className="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:border-emerald-300"
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-semibold text-gray-900">Compare URLs</p>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="text-sm font-semibold text-slate-900">Compare URLs</p>
+                <p className="mt-1 text-sm text-slate-600">
                   Compare multiple domains for one keyword.
                 </p>
               </div>

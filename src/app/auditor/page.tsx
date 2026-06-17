@@ -66,7 +66,7 @@ function ScoreRing({ score, label, url }: { score: number; label: string; url: s
             fill="none"
             stroke="currentColor"
             strokeWidth="10"
-            className="text-gray-100"
+            className="text-slate-100"
           />
           <circle
             cx="60"
@@ -83,17 +83,17 @@ function ScoreRing({ score, label, url }: { score: number; label: string; url: s
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className={`text-3xl font-bold ${colorClass}`}>{score}</span>
-          <span className="text-xs text-gray-400">/100</span>
+          <span className="text-xs text-slate-400">/100</span>
         </div>
       </div>
       <div className="text-center">
-        <p className="text-sm font-semibold text-gray-900">{label}</p>
-        <p className="text-xs text-gray-500 truncate max-w-[200px]" title={url}>{url}</p>
+        <p className="text-sm font-semibold text-slate-900">{label}</p>
+        <p className="text-xs text-slate-500 truncate max-w-[200px]" title={url}>{url}</p>
       </div>
       <div className={`rounded-full px-3 py-1 text-xs font-medium ${bgClass} ${colorClass}`}>
         {statusText}
       </div>
-      <p className="text-xs text-gray-500 text-center max-w-[200px]">{statusDesc}</p>
+      <p className="text-xs text-slate-500 text-center max-w-[200px]">{statusDesc}</p>
     </div>
   );
 }
@@ -159,7 +159,7 @@ function SuggestionItem({ item, index }: { item: AuditSuggestion; index: number 
         {Array.from({ length: 10 }).map((_, i) => (
           <div
             key={i}
-            className={`h-1 flex-1 ${i < priorityNum ? c.barColor : "bg-gray-200"}`}
+            className={`h-1 flex-1 ${i < priorityNum ? c.barColor : "bg-slate-200"}`}
           />
         ))}
       </div>
@@ -175,7 +175,7 @@ function SuggestionItem({ item, index }: { item: AuditSuggestion; index: number 
               <span className={`text-xs font-bold px-2.5 py-1 rounded ${c.labelBg} ${c.labelText}`}>
                 #{index + 1} {c.label}
               </span>
-              <span className="text-xs text-gray-500 font-medium">Priority {priorityNum}/10</span>
+              <span className="text-xs text-slate-500 font-medium">Priority {priorityNum}/10</span>
             </div>
             <p className={`text-sm leading-relaxed ${c.text} font-semibold`}>{item.message}</p>
           </div>
@@ -184,13 +184,13 @@ function SuggestionItem({ item, index }: { item: AuditSuggestion; index: number 
         {/* You vs Competitor comparison */}
         {(item.yourValue || item.competitorValue) && (
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <div className="rounded-md bg-white/70 border border-gray-200 p-2.5">
-              <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-0.5">Your Page</p>
-              <p className="text-xs text-gray-800 font-medium break-words">{item.yourValue || "—"}</p>
+            <div className="rounded-md bg-white/70 border border-slate-200 p-2.5">
+              <p className="text-[10px] uppercase tracking-wide text-slate-500 font-semibold mb-0.5">Your Page</p>
+              <p className="text-xs text-slate-800 font-medium break-words">{item.yourValue || "—"}</p>
             </div>
-            <div className="rounded-md bg-white/70 border border-gray-200 p-2.5">
-              <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-0.5">Competitor</p>
-              <p className="text-xs text-gray-800 font-medium break-words">{item.competitorValue || "—"}</p>
+            <div className="rounded-md bg-white/70 border border-slate-200 p-2.5">
+              <p className="text-[10px] uppercase tracking-wide text-slate-500 font-semibold mb-0.5">Competitor</p>
+              <p className="text-xs text-slate-800 font-medium break-words">{item.competitorValue || "—"}</p>
             </div>
           </div>
         )}
@@ -198,7 +198,7 @@ function SuggestionItem({ item, index }: { item: AuditSuggestion; index: number 
         {/* Expand/collapse for action + impact */}
         <button
           onClick={() => setExpanded(!expanded)}
-          className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors"
+          className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors"
         >
           {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           {expanded ? "Hide Details" : "Show Exact Steps & Impact"}
@@ -208,21 +208,21 @@ function SuggestionItem({ item, index }: { item: AuditSuggestion; index: number 
           <div className="mt-3 space-y-3">
             {/* Action steps */}
             {item.action && (
-              <div className="rounded-md bg-white border border-gray-200 p-3">
+              <div className="rounded-md bg-white border border-slate-200 p-3">
                 <p className="text-[10px] uppercase tracking-wide text-emerald-700 font-bold mb-1.5 flex items-center gap-1">
                   <CheckCircle2 className="h-3 w-3" /> EXACT STEPS TO FIX
                 </p>
-                <pre className="text-xs text-gray-800 whitespace-pre-wrap font-sans leading-relaxed">{item.action}</pre>
+                <pre className="text-xs text-slate-800 whitespace-pre-wrap font-sans leading-relaxed">{item.action}</pre>
               </div>
             )}
 
             {/* Impact explanation */}
             {item.impact && (
-              <div className="rounded-md bg-white border border-gray-200 p-3">
+              <div className="rounded-md bg-white border border-slate-200 p-3">
                 <p className="text-[10px] uppercase tracking-wide text-indigo-700 font-bold mb-1.5 flex items-center gap-1">
                   <TrendingUp className="h-3 w-3" /> WHY THIS MATTERS
                 </p>
-                <p className="text-xs text-gray-700 leading-relaxed">{item.impact}</p>
+                <p className="text-xs text-slate-700 leading-relaxed">{item.impact}</p>
               </div>
             )}
           </div>
@@ -241,14 +241,14 @@ function Tooltip({ children, text }: { children: React.ReactNode; text: string }
         type="button"
         onMouseEnter={() => setShow(true)}
         onMouseLeave={() => setShow(false)}
-        className="ml-1 text-gray-400 hover:text-gray-600 focus:outline-none"
+        className="ml-1 text-slate-400 hover:text-slate-600 focus:outline-none"
       >
         <HelpCircle className="h-3.5 w-3.5" />
       </button>
       {show && (
-        <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 z-10 w-56 p-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg">
+        <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 z-10 w-56 p-2 bg-slate-800 text-white text-xs rounded-lg shadow-lg">
           {text}
-          <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 border-4 border-transparent border-r-gray-800" />
+          <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 border-4 border-transparent border-r-slate-800" />
         </div>
       )}
     </div>
@@ -347,13 +347,13 @@ function MetricRow({
 }) {
   const info = metricHelp[metricKey];
   return (
-    <div className="grid grid-cols-3 gap-2 border-b border-gray-100 py-3 last:border-0 items-center">
+    <div className="grid grid-cols-3 gap-2 border-b border-slate-100 py-3 last:border-0 items-center">
       <Tooltip text={info?.description || ""}>
-        <span className="text-sm font-medium text-gray-700">{info?.label || metricKey}</span>
+        <span className="text-sm font-medium text-slate-700">{info?.label || metricKey}</span>
       </Tooltip>
       <div className="text-center">
         <span
-          className={`text-sm ${better === "a" ? "font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded" : "text-gray-900"}`}
+          className={`text-sm ${better === "a" ? "font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded" : "text-slate-900"}`}
         >
           {valueA}
         </span>
@@ -361,7 +361,7 @@ function MetricRow({
       </div>
       <div className="text-center">
         <span
-          className={`text-sm ${better === "b" ? "font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded" : "text-gray-900"}`}
+          className={`text-sm ${better === "b" ? "font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded" : "text-slate-900"}`}
         >
           {valueB}
         </span>
@@ -389,33 +389,33 @@ function RankingComparisonCard({ data }: { data: AuditCompareResponse["rankingCo
   const compPos = formatPosition(data.competitorPosition);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 className="text-base font-semibold text-slate-900 mb-4 flex items-center gap-2">
         <TrendingUp className="h-4 w-4" />
         Actual Google Rankings
       </h3>
 
       <div className="grid grid-cols-2 gap-4">
         <div className={`rounded-lg border ${yourPos.border} ${yourPos.bg} p-4 text-center`}>
-          <p className="text-xs text-gray-500 mb-1">Your Position</p>
+          <p className="text-xs text-slate-500 mb-1">Your Position</p>
           <p className={`text-2xl font-bold ${yourPos.color}`}>{yourPos.text}</p>
           {data.yourPosition && data.yourPosition > 10 && (
-            <p className="text-xs text-gray-500 mt-1">Page 2+ (low visibility)</p>
+            <p className="text-xs text-slate-500 mt-1">Page 2+ (low visibility)</p>
           )}
         </div>
 
         <div className={`rounded-lg border ${compPos.border} ${compPos.bg} p-4 text-center`}>
-          <p className="text-xs text-gray-500 mb-1">Competitor Position</p>
+          <p className="text-xs text-slate-500 mb-1">Competitor Position</p>
           <p className={`text-2xl font-bold ${compPos.color}`}>{compPos.text}</p>
           {data.competitorPosition && data.competitorPosition <= 10 && (
-            <p className="text-xs text-gray-500 mt-1">First page (high visibility)</p>
+            <p className="text-xs text-slate-500 mt-1">First page (high visibility)</p>
           )}
         </div>
       </div>
 
       {data.yourPosition && data.competitorPosition && data.positionGap !== 0 && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-700">
+        <div className="mt-4 p-3 bg-slate-50 rounded-lg">
+          <p className="text-sm text-slate-700">
             {data.positionGap < 0 ? (
               <span className="text-green-600 font-medium flex items-center gap-1">
                 <Trophy className="h-4 w-4" />
@@ -438,36 +438,36 @@ function Top10AnalysisCard({ data }: { data: AuditCompareResponse["top10Analysis
   if (!data) return null;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 className="text-base font-semibold text-slate-900 mb-4 flex items-center gap-2">
         <Info className="h-4 w-4" />
         What Top 10 Results Have in Common
       </h3>
 
-      <p className="text-sm text-gray-600 mb-4">
+      <p className="text-sm text-slate-600 mb-4">
         Analyzed the top 5 ranking pages to find patterns that correlate with high rankings.
       </p>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-xs text-gray-500">Avg Word Count</p>
-          <p className="text-lg font-semibold text-gray-900">{data.avgWordCount.toLocaleString()} words</p>
-          <p className="text-xs text-gray-400">Top pages are comprehensive</p>
+        <div className="bg-slate-50 rounded-lg p-3">
+          <p className="text-xs text-slate-500">Avg Word Count</p>
+          <p className="text-lg font-semibold text-slate-900">{data.avgWordCount.toLocaleString()} words</p>
+          <p className="text-xs text-slate-400">Top pages are comprehensive</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-xs text-gray-500">Avg Title Length</p>
-          <p className="text-lg font-semibold text-gray-900">{data.avgTitleLength} chars</p>
-          <p className="text-xs text-gray-400">Sweet spot for click-through</p>
+        <div className="bg-slate-50 rounded-lg p-3">
+          <p className="text-xs text-slate-500">Avg Title Length</p>
+          <p className="text-lg font-semibold text-slate-900">{data.avgTitleLength} chars</p>
+          <p className="text-xs text-slate-400">Sweet spot for click-through</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-xs text-gray-500">Using Schema Markup</p>
-          <p className="text-lg font-semibold text-gray-900">{data.pagesWithSchema}/5 pages</p>
-          <p className="text-xs text-gray-400">Rich snippets advantage</p>
+        <div className="bg-slate-50 rounded-lg p-3">
+          <p className="text-xs text-slate-500">Using Schema Markup</p>
+          <p className="text-lg font-semibold text-slate-900">{data.pagesWithSchema}/5 pages</p>
+          <p className="text-xs text-slate-400">Rich snippets advantage</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-xs text-gray-500">Avg Internal Links</p>
-          <p className="text-lg font-semibold text-gray-900">{data.avgInternalLinks} links</p>
-          <p className="text-xs text-gray-400">Good site structure</p>
+        <div className="bg-slate-50 rounded-lg p-3">
+          <p className="text-xs text-slate-500">Avg Internal Links</p>
+          <p className="text-lg font-semibold text-slate-900">{data.avgInternalLinks} links</p>
+          <p className="text-xs text-slate-400">Good site structure</p>
         </div>
       </div>
 
@@ -499,9 +499,9 @@ function ActionPlan({ suggestions, yourScore, competitorScore }: { suggestions: 
             <div className="flex items-start gap-3">
               <span className="bg-red-600 text-white text-sm font-bold px-3 py-1.5 rounded-full shrink-0">STEP 1</span>
               <div className="flex-1">
-                <p className="font-bold text-gray-900 mb-1">🚨 Fix {criticalCount} Critical Issue{criticalCount > 1 ? "s" : ""} First</p>
-                <p className="text-gray-700 mb-2">These are BLOCKING your rankings. Without fixing these, you won&apos;t rank well no matter what else you do.</p>
-                <p className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                <p className="font-bold text-slate-900 mb-1">🚨 Fix {criticalCount} Critical Issue{criticalCount > 1 ? "s" : ""} First</p>
+                <p className="text-slate-700 mb-2">These are BLOCKING your rankings. Without fixing these, you won&apos;t rank well no matter what else you do.</p>
+                <p className="text-xs text-slate-600 bg-slate-50 p-2 rounded">
                   <strong>What to do:</strong> Scroll down and fix all items marked &quot;FIX NOW&quot; (red). These are usually quick fixes like adding a title tag or H1 heading.
                 </p>
               </div>
@@ -522,9 +522,9 @@ function ActionPlan({ suggestions, yourScore, competitorScore }: { suggestions: 
             <div className="flex items-start gap-3">
               <span className="bg-yellow-500 text-white text-sm font-bold px-3 py-1.5 rounded-full shrink-0">STEP 2</span>
               <div className="flex-1">
-                <p className="font-bold text-gray-900 mb-1">⚡ Address {warningCount} Warning{warningCount > 1 ? "s" : ""}</p>
-                <p className="text-gray-700 mb-2">These are what separate you from your competitor. Fix these to close the ranking gap.</p>
-                <p className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                <p className="font-bold text-slate-900 mb-1">⚡ Address {warningCount} Warning{warningCount > 1 ? "s" : ""}</p>
+                <p className="text-slate-700 mb-2">These are what separate you from your competitor. Fix these to close the ranking gap.</p>
+                <p className="text-xs text-slate-600 bg-slate-50 p-2 rounded">
                   <strong>What to do:</strong> Fix items marked &quot;FIX SOON&quot; (yellow). Focus on content length, keyword placement, and schema markup.
                 </p>
               </div>
@@ -538,9 +538,9 @@ function ActionPlan({ suggestions, yourScore, competitorScore }: { suggestions: 
             <div className="flex items-start gap-3">
               <span className="bg-blue-500 text-white text-sm font-bold px-3 py-1.5 rounded-full shrink-0">STEP 3</span>
               <div className="flex-1">
-                <p className="font-bold text-gray-900 mb-1">🎯 Polish {infoCount} Enhancement{infoCount > 1 ? "s" : ""}</p>
-                <p className="text-gray-700 mb-2">These give you the final edge to outrank competitors.</p>
-                <p className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                <p className="font-bold text-slate-900 mb-1">🎯 Polish {infoCount} Enhancement{infoCount > 1 ? "s" : ""}</p>
+                <p className="text-slate-700 mb-2">These give you the final edge to outrank competitors.</p>
+                <p className="text-xs text-slate-600 bg-slate-50 p-2 rounded">
                   <strong>What to do:</strong> Improve items marked &quot;IMPROVE&quot; (blue). These are nice-to-haves that add up over time.
                 </p>
               </div>
@@ -553,8 +553,8 @@ function ActionPlan({ suggestions, yourScore, competitorScore }: { suggestions: 
           <div className="flex items-start gap-3">
             <span className="bg-purple-500 text-white text-sm font-bold px-3 py-1.5 rounded-full shrink-0">STEP 4</span>
             <div className="flex-1">
-              <p className="font-bold text-gray-900 mb-1">📊 Monitor & Wait</p>
-              <p className="text-gray-700">After making changes, wait 2-4 weeks for Google to re-crawl and re-rank your page. Check your position weekly.</p>
+              <p className="font-bold text-slate-900 mb-1">📊 Monitor & Wait</p>
+              <p className="text-slate-700">After making changes, wait 2-4 weeks for Google to re-crawl and re-rank your page. Check your position weekly.</p>
             </div>
           </div>
         </div>
@@ -562,8 +562,8 @@ function ActionPlan({ suggestions, yourScore, competitorScore }: { suggestions: 
 
       <div className="mt-5 pt-4 border-t-2 border-green-200">
         <div className="bg-white rounded-lg p-3">
-          <p className="text-sm font-bold text-gray-900 mb-1">💡 Quick Win Strategy:</p>
-          <p className="text-xs text-gray-700">
+          <p className="text-sm font-bold text-slate-900 mb-1">💡 Quick Win Strategy:</p>
+          <p className="text-xs text-slate-700">
             {yourScore >= competitorScore
               ? "You're ahead! Maintain your advantage by keeping content fresh and monitoring competitor changes."
               : criticalCount > 0
@@ -579,20 +579,20 @@ function ActionPlan({ suggestions, yourScore, competitorScore }: { suggestions: 
 function AuditDetails({ audit, label }: { audit: AuditSnapshot; label: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="rounded-lg border border-gray-200 bg-white">
+    <div className="rounded-lg border border-slate-200 bg-white">
       <button
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between p-4 text-left"
       >
-        <span className="text-sm font-semibold text-gray-900">{label} Raw Data</span>
+        <span className="text-sm font-semibold text-slate-900">{label} Raw Data</span>
         {open ? (
-          <ChevronUp className="h-4 w-4 text-gray-400" />
+          <ChevronUp className="h-4 w-4 text-slate-400" />
         ) : (
-          <ChevronDown className="h-4 w-4 text-gray-400" />
+          <ChevronDown className="h-4 w-4 text-slate-400" />
         )}
       </button>
       {open && (
-        <div className="border-t border-gray-100 p-4 space-y-2 text-xs text-gray-700">
+        <div className="border-t border-slate-100 p-4 space-y-2 text-xs text-slate-700">
           <p><strong>Title:</strong> {audit.title || "(empty)"}</p>
           <p><strong>H1:</strong> {audit.h1 || "(empty)"}</p>
           <p><strong>Meta Desc:</strong> {audit.metaDescription || "(empty)"}</p>
@@ -664,18 +664,18 @@ export default function AuditorPage() {
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-4"
+          className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-4"
         >
           <div className="flex items-center gap-2 mb-2">
             <FileSearch className="h-5 w-5 text-rose-600" />
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-slate-900">
               Competitive On-Page Audit
             </h2>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 Target Keyword
               </label>
               <input
@@ -683,30 +683,30 @@ export default function AuditorPage() {
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 placeholder="e.g. best pizza dubai"
-                className="w-full rounded-lg border border-gray-300 bg-white py-2.5 px-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
+                className="w-full rounded-lg border border-slate-300 bg-white py-2.5 px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 Your Page URL
               </label>
               <div className="relative">
-                <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="url"
                   value={yourUrl}
                   onChange={(e) => setYourUrl(e.target.value)}
                   placeholder="https://yoursite.com/page"
-                  className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
+                  className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 Competitor Page URL
               </label>
               <div className="relative">
@@ -716,7 +716,7 @@ export default function AuditorPage() {
                   value={competitorUrl}
                   onChange={(e) => setCompetitorUrl(e.target.value)}
                   placeholder="https://competitor.com/page"
-                  className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
+                  className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
                   required
                 />
               </div>
@@ -750,9 +750,9 @@ export default function AuditorPage() {
                   onChange={(e) => setUseAI(e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
               </div>
-              <span className="flex items-center gap-1 text-sm font-medium text-gray-700">
+              <span className="flex items-center gap-1 text-sm font-medium text-slate-700">
                 <Sparkles className="h-3.5 w-3.5 text-brand-600" />
                 AI Suggestions
               </span>
@@ -778,10 +778,10 @@ export default function AuditorPage() {
 
             {/* Score Cards */}
             <div className="grid gap-6 md:grid-cols-2">
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm flex flex-col items-center">
+              <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col items-center">
                 <ScoreRing score={yours.score} label="Your Page" url={yours.url} />
               </div>
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm flex flex-col items-center">
+              <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col items-center">
                 <ScoreRing score={competitor.score} label="Competitor" url={competitor.url} />
               </div>
             </div>
@@ -795,19 +795,19 @@ export default function AuditorPage() {
             )}
 
             {/* Comparison Table */}
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h3 className="text-base font-semibold text-gray-900 mb-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+              <h3 className="text-base font-semibold text-slate-900 mb-4">
                 Side-by-Side Comparison
               </h3>
 
-              <div className="grid grid-cols-3 gap-2 border-b border-gray-200 pb-3 mb-2">
-                <span className="text-xs font-semibold text-gray-500 uppercase">
-                  Metric <span className="text-gray-400 font-normal">(hover ?)</span>
+              <div className="grid grid-cols-3 gap-2 border-b border-slate-200 pb-3 mb-2">
+                <span className="text-xs font-semibold text-slate-500 uppercase">
+                  Metric <span className="text-slate-400 font-normal">(hover ?)</span>
                 </span>
-                <span className="text-xs font-semibold text-gray-500 uppercase text-center">
+                <span className="text-xs font-semibold text-slate-500 uppercase text-center">
                   Your Page
                 </span>
-                <span className="text-xs font-semibold text-gray-500 uppercase text-center">
+                <span className="text-xs font-semibold text-slate-500 uppercase text-center">
                   Competitor
                 </span>
               </div>
@@ -884,37 +884,37 @@ export default function AuditorPage() {
               />
 
               {/* Boolean checks with tooltips */}
-              <div className="grid grid-cols-3 gap-2 border-b border-gray-100 py-3 items-center">
+              <div className="grid grid-cols-3 gap-2 border-b border-slate-100 py-3 items-center">
                 <Tooltip text={metricHelp.keywordInTitle.description}>
-                  <span className="text-sm font-medium text-gray-700">{metricHelp.keywordInTitle.label}</span>
+                  <span className="text-sm font-medium text-slate-700">{metricHelp.keywordInTitle.label}</span>
                 </Tooltip>
                 <div className="text-center"><BoolBadge value={yours.keywordInTitle} trueLabel="Present" falseLabel="Missing" /></div>
                 <div className="text-center"><BoolBadge value={competitor.keywordInTitle} trueLabel="Present" falseLabel="Missing" /></div>
               </div>
-              <div className="grid grid-cols-3 gap-2 border-b border-gray-100 py-3 items-center">
+              <div className="grid grid-cols-3 gap-2 border-b border-slate-100 py-3 items-center">
                 <Tooltip text={metricHelp.keywordInH1.description}>
-                  <span className="text-sm font-medium text-gray-700">{metricHelp.keywordInH1.label}</span>
+                  <span className="text-sm font-medium text-slate-700">{metricHelp.keywordInH1.label}</span>
                 </Tooltip>
                 <div className="text-center"><BoolBadge value={yours.keywordInH1} trueLabel="Present" falseLabel="Missing" /></div>
                 <div className="text-center"><BoolBadge value={competitor.keywordInH1} trueLabel="Present" falseLabel="Missing" /></div>
               </div>
-              <div className="grid grid-cols-3 gap-2 border-b border-gray-100 py-3 items-center">
+              <div className="grid grid-cols-3 gap-2 border-b border-slate-100 py-3 items-center">
                 <Tooltip text={metricHelp.keywordInMeta.description}>
-                  <span className="text-sm font-medium text-gray-700">{metricHelp.keywordInMeta.label}</span>
+                  <span className="text-sm font-medium text-slate-700">{metricHelp.keywordInMeta.label}</span>
                 </Tooltip>
                 <div className="text-center"><BoolBadge value={yours.keywordInMeta} trueLabel="Present" falseLabel="Missing" /></div>
                 <div className="text-center"><BoolBadge value={competitor.keywordInMeta} trueLabel="Present" falseLabel="Missing" /></div>
               </div>
-              <div className="grid grid-cols-3 gap-2 border-b border-gray-100 py-3 items-center">
+              <div className="grid grid-cols-3 gap-2 border-b border-slate-100 py-3 items-center">
                 <Tooltip text={metricHelp.keywordInUrl.description}>
-                  <span className="text-sm font-medium text-gray-700">{metricHelp.keywordInUrl.label}</span>
+                  <span className="text-sm font-medium text-slate-700">{metricHelp.keywordInUrl.label}</span>
                 </Tooltip>
                 <div className="text-center"><BoolBadge value={yours.keywordInUrl} trueLabel="Present" falseLabel="Missing" /></div>
                 <div className="text-center"><BoolBadge value={competitor.keywordInUrl} trueLabel="Present" falseLabel="Missing" /></div>
               </div>
               <div className="grid grid-cols-3 gap-2 py-3 items-center">
                 <Tooltip text={metricHelp.hasSchema.description}>
-                  <span className="text-sm font-medium text-gray-700">{metricHelp.hasSchema.label}</span>
+                  <span className="text-sm font-medium text-slate-700">{metricHelp.hasSchema.label}</span>
                 </Tooltip>
                 <div className="text-center"><BoolBadge value={yours.hasSchema} trueLabel="Found" falseLabel="Not Found" /></div>
                 <div className="text-center"><BoolBadge value={competitor.hasSchema} trueLabel="Found" falseLabel="Not Found" /></div>
@@ -930,9 +930,9 @@ export default function AuditorPage() {
 
             {/* Suggestions */}
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
+              <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-3">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-semibold text-gray-900">
+                  <h3 className="text-base font-semibold text-slate-900">
                     Suggestions for Your Page
                   </h3>
                   {useAI && (
@@ -959,8 +959,8 @@ export default function AuditorPage() {
                   yourScore={yours.score}
                   competitorScore={competitor.score}
                 />
-                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-3">
-                  <h3 className="text-base font-semibold text-gray-900">
+                <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-3">
+                  <h3 className="text-base font-semibold text-slate-900">
                     Competitor Weaknesses
                   </h3>
                   {result.suggestionsForSecond.length === 0 ? (

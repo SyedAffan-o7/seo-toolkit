@@ -1,5 +1,4 @@
 import { SerpResult, SerpFeature } from "@/types/serp";
-import { MockSerpProvider } from "./mock";
 import { SerpApiProvider } from "./serpapi";
 import { SerperProvider } from "./serper";
 
@@ -23,15 +22,17 @@ export interface SerpProvider {
 }
 
 export function getSerpProvider(): SerpProvider {
-  const provider = process.env.SERP_PROVIDER || "mock";
+  const provider = process.env.SERP_PROVIDER || "serper";
+  const apiKey = process.env.SERP_API_KEY;
 
   switch (provider) {
     case "serpapi":
-      return new SerpApiProvider(process.env.SERP_API_KEY || "");
+      return new SerpApiProvider(apiKey || "");
     case "serper":
-      return new SerperProvider(process.env.SERP_API_KEY || "");
-    case "mock":
+      return new SerperProvider(apiKey || "");
     default:
-      return new MockSerpProvider();
+      throw new Error(
+        `Unknown SERP_PROVIDER "${provider}". Must be "serper" or "serpapi". Set SERP_PROVIDER and SERP_API_KEY in environment variables.`
+      );
   }
 }

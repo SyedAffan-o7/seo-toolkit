@@ -63,7 +63,7 @@ export default function RankCheckerPage() {
       />
       <div className="p-6 space-y-6">
         {/* Search Card */}
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <SearchForm onSubmit={handleSearch} isLoading={isLoading} />
         </div>
 
@@ -72,35 +72,35 @@ export default function RankCheckerPage() {
 
         {/* Empty State */}
         {!result && !isLoading && (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-white p-12">
+          <div className="rounded-xl border border-dashed border-slate-300 bg-white p-12">
             <div className="mx-auto max-w-md text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-50">
                 <Search className="h-6 w-6 text-brand-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-slate-900">
                 Check Your Rankings
               </h3>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-slate-500">
                 Enter a keyword and your website URL above to see where you rank
                 in Google search results. Results include top 10 positions with
                 SERP features.
               </p>
               <div className="mt-6 grid grid-cols-3 gap-4">
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <Target className="mx-auto h-5 w-5 text-gray-400" />
-                  <p className="mt-1.5 text-xs font-medium text-gray-600">
+                <div className="rounded-lg bg-slate-50 p-3">
+                  <Target className="mx-auto h-5 w-5 text-slate-400" />
+                  <p className="mt-1.5 text-xs font-medium text-slate-600">
                     Position Tracking
                   </p>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <TrendingUp className="mx-auto h-5 w-5 text-gray-400" />
-                  <p className="mt-1.5 text-xs font-medium text-gray-600">
+                <div className="rounded-lg bg-slate-50 p-3">
+                  <TrendingUp className="mx-auto h-5 w-5 text-slate-400" />
+                  <p className="mt-1.5 text-xs font-medium text-slate-600">
                     SERP Analysis
                   </p>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <Zap className="mx-auto h-5 w-5 text-gray-400" />
-                  <p className="mt-1.5 text-xs font-medium text-gray-600">
+                <div className="rounded-lg bg-slate-50 p-3">
+                  <Zap className="mx-auto h-5 w-5 text-slate-400" />
+                  <p className="mt-1.5 text-xs font-medium text-slate-600">
                     CSV Export
                   </p>
                 </div>

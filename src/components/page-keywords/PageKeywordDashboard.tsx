@@ -125,47 +125,47 @@ export default function PageKeywordDashboard({ projectId }: PageKeywordDashboard
   };
 
   const getTrendIcon = (current: number | null, previous: number | null) => {
-    if (current === null || previous === null) return <Minus className="h-4 w-4 text-gray-400" />;
+    if (current === null || previous === null) return <Minus className="h-4 w-4 text-slate-400" />;
     if (current < previous) return <TrendingUp className="h-4 w-4 text-emerald-500" />;
     if (current > previous) return <TrendingDown className="h-4 w-4 text-red-500" />;
-    return <Minus className="h-4 w-4 text-gray-400" />;
+    return <Minus className="h-4 w-4 text-slate-400" />;
   };
 
   const stats = calculateStats();
 
   if (isLoading) {
-    return <div className="p-6 text-center text-gray-500">Loading dashboard...</div>;
+    return <div className="p-6 text-center text-slate-500">Loading dashboard...</div>;
   }
 
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Total Mappings</p>
-          <p className="mt-2 text-2xl font-semibold text-gray-900">{stats.totalMappings}</p>
-          <p className="mt-1 text-xs text-gray-400">{stats.activeMappings} active</p>
+        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">Total Mappings</p>
+          <p className="mt-2 text-2xl font-semibold text-slate-900">{stats.totalMappings}</p>
+          <p className="mt-1 text-xs text-slate-400">{stats.activeMappings} active</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Average Position</p>
+        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">Average Position</p>
           <p className={`mt-2 text-2xl font-semibold ${
             stats.averagePosition <= 10 ? "text-emerald-600" : 
-            stats.averagePosition <= 30 ? "text-amber-600" : "text-gray-900"
+            stats.averagePosition <= 30 ? "text-amber-600" : "text-slate-900"
           }`}>
             {stats.averagePosition > 0 ? `#${stats.averagePosition}` : "—"}
           </p>
-          <p className="mt-1 text-xs text-gray-400">Across all tracked keywords</p>
+          <p className="mt-1 text-xs text-slate-400">Across all tracked keywords</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Top 3 Rankings</p>
+        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">Top 3 Rankings</p>
           <div className="mt-2 flex items-center gap-2">
             <Award className="h-6 w-6 text-amber-500" />
-            <p className="text-2xl font-semibold text-gray-900">{stats.topRankers}</p>
+            <p className="text-2xl font-semibold text-slate-900">{stats.topRankers}</p>
           </div>
-          <p className="mt-1 text-xs text-gray-400">First page: {stats.firstPage}</p>
+          <p className="mt-1 text-xs text-slate-400">First page: {stats.firstPage}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Recent Changes</p>
+        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">Recent Changes</p>
           <div className="mt-2 flex items-center gap-4">
             <div className="flex items-center gap-1">
               <TrendingUp className="h-4 w-4 text-emerald-500" />
@@ -176,18 +176,18 @@ export default function PageKeywordDashboard({ projectId }: PageKeywordDashboard
               <span className="text-lg font-semibold text-red-600">{stats.declined}</span>
             </div>
           </div>
-          <p className="mt-1 text-xs text-gray-400">Since last check</p>
+          <p className="mt-1 text-xs text-slate-400">Since last check</p>
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Position History Chart */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Position History</h3>
+              <h3 className="text-lg font-semibold text-slate-900">Position History</h3>
               {selectedMapping && (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-slate-500">
                   {selectedMapping.keyword} →{" "}
                   <a 
                     href={selectedMapping.pageUrl}
@@ -208,7 +208,7 @@ export default function PageKeywordDashboard({ projectId }: PageKeywordDashboard
                   className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
                     timeRange === range
                       ? "bg-brand-600 text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                   }`}
                 >
                   {range === "7d" ? "7 Days" : range === "30d" ? "30 Days" : "90 Days"}
@@ -240,8 +240,8 @@ export default function PageKeywordDashboard({ projectId }: PageKeywordDashboard
                       if (active && payload && payload[0]) {
                         const value = payload[0].value as number | null;
                         return (
-                          <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
-                            <p className="text-sm text-gray-500">{label}</p>
+                          <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-lg">
+                            <p className="text-sm text-slate-500">{label}</p>
                             <p className="text-lg font-semibold">
                               {value ? `Position #${value}` : "Not found"}
                             </p>
@@ -266,9 +266,9 @@ export default function PageKeywordDashboard({ projectId }: PageKeywordDashboard
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-[300px] flex items-center justify-center text-gray-400">
+            <div className="h-[300px] flex items-center justify-center text-slate-400">
               <div className="text-center">
-                <Target className="mx-auto h-10 w-10 text-gray-300" />
+                <Target className="mx-auto h-10 w-10 text-slate-300" />
                 <p className="mt-2">No position history available</p>
                 <p className="text-sm">Run a check to start tracking</p>
               </div>
@@ -277,8 +277,8 @@ export default function PageKeywordDashboard({ projectId }: PageKeywordDashboard
         </div>
 
         {/* Mapping Selector & Quick Stats */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Trackings</h3>
+        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Trackings</h3>
           <div className="space-y-3 max-h-[400px] overflow-y-auto">
             {mappings.filter(m => m.isActive).map((mapping) => {
               const latest = mapping.positions[0];
@@ -291,15 +291,15 @@ export default function PageKeywordDashboard({ projectId }: PageKeywordDashboard
                   className={`w-full text-left p-3 rounded-lg border transition-all ${
                     selectedMapping?.id === mapping.id
                       ? "border-brand-500 bg-brand-50"
-                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                      : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-slate-900 truncate">
                         {mapping.keyword}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-slate-500 truncate">
                         {new URL(mapping.pageUrl).pathname}
                       </p>
                     </div>
@@ -308,17 +308,17 @@ export default function PageKeywordDashboard({ projectId }: PageKeywordDashboard
                       {latest?.position ? (
                         <span className={`text-sm font-semibold ${
                           latest.position <= 3 ? "text-emerald-600" :
-                          latest.position <= 10 ? "text-amber-600" : "text-gray-600"
+                          latest.position <= 10 ? "text-amber-600" : "text-slate-600"
                         }`}>
                           #{latest.position}
                         </span>
                       ) : (
-                        <span className="text-xs text-gray-400">—</span>
+                        <span className="text-xs text-slate-400">—</span>
                       )}
                     </div>
                   </div>
                   {latest?.checkedAt && (
-                    <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                    <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       {new Date(latest.checkedAt).toLocaleDateString()}
                     </p>
@@ -327,8 +327,8 @@ export default function PageKeywordDashboard({ projectId }: PageKeywordDashboard
               );
             })}
             {mappings.filter(m => m.isActive).length === 0 && (
-              <div className="text-center py-8 text-gray-400">
-                <AlertTriangle className="mx-auto h-8 w-8 text-gray-300" />
+              <div className="text-center py-8 text-slate-400">
+                <AlertTriangle className="mx-auto h-8 w-8 text-slate-300" />
                 <p className="mt-2 text-sm">No active mappings</p>
               </div>
             )}

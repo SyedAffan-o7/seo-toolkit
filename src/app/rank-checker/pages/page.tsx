@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 
 // Simple Tabs component if not available
 function SimpleTabsList({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`flex gap-1 p-1 bg-gray-100 rounded-lg ${className}`}>{children}</div>;
+  return <div className={`flex gap-1 p-1 bg-slate-100 rounded-lg ${className}`}>{children}</div>;
 }
 
 function SimpleTabsTrigger({ 
@@ -29,8 +29,8 @@ function SimpleTabsTrigger({
       onClick={onClick}
       className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
         active 
-          ? "bg-white text-gray-900 shadow-sm" 
-          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+          ? "bg-white text-slate-900 shadow-sm" 
+          : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
       }`}
     >
       {children}
@@ -174,8 +174,8 @@ function PageRankingsContent() {
         <TopBar title="Page Rankings" subtitle="Track keyword positions for specific pages" />
         <div className="p-6">
           <div className="animate-pulse space-y-4">
-            <div className="h-10 bg-gray-200 rounded w-1/4"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
+            <div className="h-10 bg-slate-200 rounded w-1/4"></div>
+            <div className="h-64 bg-slate-200 rounded"></div>
           </div>
         </div>
       </>
@@ -190,11 +190,11 @@ function PageRankingsContent() {
         {/* Profile Selector */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <label className="text-sm font-medium text-gray-700">Profile:</label>
+            <label className="text-sm font-medium text-slate-700">Profile:</label>
             <select
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
-              className="rounded-lg border border-gray-300 bg-white py-2 px-4 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+              className="rounded-lg border border-slate-300 bg-white py-2 px-4 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
             >
               <option value="">Select a profile...</option>
               {projects.map((project) => (
@@ -278,16 +278,16 @@ function PageRankingsContent() {
             )}
           </div>
         ) : projects.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50/50 p-12">
+          <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 p-12">
             <div className="mx-auto max-w-md">
               <div className="text-center">
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-50">
                   <Plus className="h-6 w-6 text-amber-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-slate-900">
                   No Profiles Found
                 </h3>
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-2 text-sm text-slate-500">
                   Create a profile first to start tracking page rankings.
                 </p>
               </div>
@@ -303,7 +303,7 @@ function PageRankingsContent() {
               ) : (
                 <form onSubmit={handleCreateProject} className="mt-6 space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Profile Name
                     </label>
                     <input
@@ -311,7 +311,7 @@ function PageRankingsContent() {
                       value={newProjectName}
                       onChange={(e) => setNewProjectName(e.target.value)}
                       placeholder="e.g. My Website"
-                      className="w-full rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                      className="w-full rounded-lg border border-slate-300 bg-white py-2 px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                       required
                     />
                   </div>
@@ -319,7 +319,7 @@ function PageRankingsContent() {
                     <button
                       type="button"
                       onClick={() => setShowCreateForm(false)}
-                      className="flex-1 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="flex-1 px-4 py-2 text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
                     >
                       Cancel
                     </button>
@@ -346,15 +346,15 @@ function PageRankingsContent() {
             </div>
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50/50 p-12">
+          <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 p-12">
             <div className="mx-auto max-w-md text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-50">
                 <Plus className="h-6 w-6 text-brand-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-slate-900">
                 Select a Project
               </h3>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-slate-500">
                 Choose a project from the dropdown above to start tracking page rankings.
               </p>
             </div>
@@ -370,8 +370,8 @@ export default function PageRankingsPage() {
     <Suspense fallback={
       <div className="p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
+          <div className="h-10 bg-slate-200 rounded w-1/4"></div>
+          <div className="h-64 bg-slate-200 rounded"></div>
         </div>
       </div>
     }>

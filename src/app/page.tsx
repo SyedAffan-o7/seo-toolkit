@@ -87,7 +87,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Tool Cards */}
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Tools</h3>
+        <h3 className="mb-4 text-lg font-semibold text-slate-900">Tools</h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {tools.map((tool) => (
             <Link
@@ -96,7 +96,7 @@ export default function DashboardPage() {
               className={`group relative rounded-xl border ${tool.border} bg-white p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5`}
             >
               {tool.badge && (
-                <span className="absolute right-4 top-4 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-500">
+                <span className="absolute right-4 top-4 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500">
                   {tool.badge}
                 </span>
               )}
@@ -105,10 +105,10 @@ export default function DashboardPage() {
               >
                 <tool.icon className="h-5 w-5" />
               </div>
-              <h4 className="mt-4 text-base font-semibold text-gray-900 group-hover:text-brand-700 transition-colors">
+              <h4 className="mt-4 text-base font-semibold text-slate-900 group-hover:text-brand-700 transition-colors">
                 {tool.title}
               </h4>
-              <p className="mt-1.5 text-sm text-gray-500 leading-relaxed">
+              <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">
                 {tool.description}
               </p>
               <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-brand-600 opacity-0 group-hover:opacity-100 transition-opacity">
