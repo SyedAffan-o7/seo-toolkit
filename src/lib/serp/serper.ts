@@ -23,7 +23,7 @@ export class SerperProvider implements SerpProvider {
   }
 
   async search(options: SerpProviderOptions): Promise<SerpProviderResult> {
-    const targetResults = options.numResults || 100;
+    const targetResults = Math.min(options.numResults || 100, 100);
     const allResults: SerpResult[] = [];
     const allFeatures: SerpFeature[] = [];
 
@@ -91,8 +91,6 @@ export class SerperProvider implements SerpProvider {
           domain = url;
         }
 
-        // Calculate absolute position: (page - 1) * perPage + index + 1
-        // Serper's item.position is relative to the page, so we calculate our own
         const absolutePosition = (page - 1) * perPage + idx + 1;
 
         const result: SerpResult = {

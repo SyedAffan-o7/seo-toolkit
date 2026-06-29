@@ -5,6 +5,7 @@ import { getSerpProvider } from "@/lib/serp/provider";
 import { generateAiSuggestions } from "@/lib/ai/analyze";
 import { isAiEnabled } from "@/lib/ai/openai";
 import type { AuditCompareResponse, AuditSnapshot, AuditSuggestion, KeywordComparison } from "@/types/audit";
+import { chromium } from "playwright";
 
 const requestSchema = z.object({
   keyword: z.string().min(1, "Keyword is required"),
@@ -325,7 +326,7 @@ function extractSchemaTypes(html: string): string[] {
   return Array.from(new Set(types));
 }
 
-async function fetchHtml(url: string): Promise<string> {
+async function fetchHtmlDirect(url: string): Promise<string> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 30000);
   try {
@@ -340,6 +341,14 @@ async function fetchHtml(url: string): Promise<string> {
         "Accept-Encoding": "gzip, deflate, br",
         "DNT": "1",
         "Connection": "keep-alive",
+        "Sec-Ch-UA": '"Not.A/Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+        "Sec-Ch-UA-Mobile": "?0",
+        "Sec-Ch-UA-Platform": '"Windows"',
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Upgrade-Insecure-Requests": "1",
       },
     });
     if (!res.ok) {
@@ -353,6 +362,61 @@ async function fetchHtml(url: string): Promise<string> {
     throw err;
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+async function fetchHtmlWithPlaywright(url: string): Promise<string> {
+  let browser = null;
+  try {
+    browser = await chromium.launch({
+      headless: true,
+      channel: "chrome",
+    });
+    const page = await browser.newPage({
+      userAgent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      viewport: { width: 1920, height: 1080 },
+      locale: "en-US",
+    });
+
+    await page.goto(url, {
+      waitUntil: "domcontentloaded",
+      timeout: 30000,
+    });
+
+    await page.waitForTimeout(2000);
+
+    const html = await page.content();
+    return html;
+  } catch (err) {
+    if (err instanceof Error && err.name === "TimeoutError") {
+      throw new Error(`Playwright timeout: ${url} took longer than 30 seconds`);
+    }
+    throw err;
+  } finally {
+    if (browser) {
+      await browser.close().catch(() => {});
+    }
+  }
+}
+
+async function fetchHtml(url: string): Promise<string> {
+  try {
+    console.log(`[fetchHtml] Trying direct fetch: ${url}`);
+    return await fetchHtmlDirect(url);
+  } catch (directErr) {
+    console.log(`[fetchHtml] Direct fetch failed: ${directErr instanceof Error ? directErr.message : "unknown"}`);
+    console.log(`[fetchHtml] Falling back to Playwright: ${url}`);
+    try {
+      const html = await fetchHtmlWithPlaywright(url);
+      console.log(`[fetchHtml] Playwright succeeded: ${url} (${html.length} chars)`);
+      return html;
+    } catch (pwErr) {
+      console.error(`[fetchHtml] Playwright also failed: ${pwErr instanceof Error ? pwErr.message : "unknown"}`);
+      throw new Error(
+        `Could not fetch ${url}. Direct: ${directErr instanceof Error ? directErr.message : "failed"}. Playwright: ${pwErr instanceof Error ? pwErr.message : "failed"}.`
+      );
+    }
   }
 }
 
@@ -373,7 +437,29 @@ function computeScore(a: AuditSnapshot): number {
   if (a.wordCount >= 300) score += 5;
   if (a.wordCount >= 800) score += 5;
   if (a.totalImages > 0 && a.imagesWithAlt === a.totalImages) score += 5;
+
+  if (a.robotsMeta && /noindex/i.test(a.robotsMeta)) return Math.min(score, 5);
+  if (a.robotsMeta && /nofollow/i.test(a.robotsMeta)) score -= 15;
   return Math.min(score, 100);
+}
+
+function checkKeywordInUrl(url: string, keywordLower: string): boolean {
+  try {
+    const path = new URL(url).pathname.toLowerCase();
+    const hyphenated = keywordLower.replace(/\s+/g, "-");
+    const underscored = keywordLower.replace(/\s+/g, "_");
+    const encoded = encodeURIComponent(keywordLower).toLowerCase();
+    const noSpaces = keywordLower.replace(/\s+/g, "");
+    if (path.includes(hyphenated) || path.includes(underscored) || path.includes(encoded) || path.includes(noSpaces)) return true;
+    const words = keywordLower.split(/\s+/).filter((w) => w.length > 2);
+    if (words.length > 1) {
+      const allWordsInPath = words.every((w) => path.includes(w) || path.includes(w.replace(/\s+/g, "-")));
+      if (allWordsInPath) return true;
+    }
+    return false;
+  } catch {
+    return url.toLowerCase().includes(keywordLower.replace(/\s+/g, "-"));
+  }
 }
 
 function buildAudit(
@@ -432,8 +518,11 @@ function buildAudit(
     body: Array.from(keywordProfile.ngramSet).some((p) => bodyProfile.ngramSet.has(p)),
   };
 
-  // Density
-  const keywordCount = bodyProfile.stems.filter((s) => keywordProfile.stemSet.has(s)).length;
+  // Density — for multi-word keywords, use average stem frequency to avoid overestimating
+  const keywordStems = Array.from(keywordProfile.stemSet);
+  const keywordCount = keywordStems.length > 0
+    ? keywordStems.reduce((sum, stem) => sum + bodyProfile.stems.filter((s) => s === stem).length, 0) / keywordStems.length
+    : 0;
   const totalTokens = bodyProfile.stems.length || 1;
   const keywordDensity = parseFloat(((keywordCount / totalTokens) * 100).toFixed(2));
 
@@ -457,7 +546,7 @@ function buildAudit(
     keywordInTitle: keywordPresence.title,
     keywordInH1: keywordPresence.h1,
     keywordInMeta: keywordPresence.meta,
-    keywordInUrl: url.toLowerCase().includes(keywordLower.replace(/\s+/g, "-")),
+    keywordInUrl: checkKeywordInUrl(url, keywordLower),
     keywordDensity,
     keywordTokens: keywordProfile.tokens,
     keywordVariations: keywordProfile.stems,
@@ -627,6 +716,42 @@ function generateSuggestions(
         ? `"${b.metaDescription.slice(0, 80)}..." (${b.metaDescriptionLength} chars)`
         : "Also missing",
       impact: "Pages with meta descriptions get 5.8% more clicks on average. Google may also generate a poor description automatically.",
+    });
+  }
+
+  if (a.robotsMeta && /noindex/i.test(a.robotsMeta)) {
+    suggestions.push({
+      category: "critical",
+      priority: 10,
+      message: "Your page has a 'noindex' robots meta tag. Google will NOT rank this page.",
+      action: `Remove or fix the robots meta tag in your HTML <head>:\nCurrent: <meta name="robots" content="${a.robotsMeta}">\n\nChange to:\n<meta name="robots" content="index, follow">\n\nOr simply remove the tag entirely — Google indexes by default.`,
+      yourValue: `"${a.robotsMeta}" (blocking indexing)`,
+      competitorValue: b.robotsMeta ? `"${b.robotsMeta}"` : "No restrictions",
+      impact: "A noindex tag tells Google not to include your page in search results. This completely blocks all organic traffic. Fix this immediately.",
+    });
+  }
+
+  if (a.robotsMeta && /nofollow/i.test(a.robotsMeta)) {
+    suggestions.push({
+      category: "critical",
+      priority: 9,
+      message: "Your page has a 'nofollow' robots meta tag. Google won't follow any links on this page.",
+      action: `Fix the robots meta tag in your HTML <head>:\nCurrent: <meta name="robots" content="${a.robotsMeta}">\n\nChange to:\n<meta name="robots" content="index, follow">\n\nThis ensures Google can follow internal and external links on your page.`,
+      yourValue: `"${a.robotsMeta}" (blocking link following)`,
+      competitorValue: b.robotsMeta ? `"${b.robotsMeta}"` : "No restrictions",
+      impact: "A nofollow tag prevents Google from discovering pages linked from this page. This hurts your site's crawl coverage and internal link equity flow.",
+    });
+  }
+
+  if (a.canonical && b.canonical && a.canonical !== b.canonical) {
+    suggestions.push({
+      category: "info",
+      priority: 3,
+      message: "Your page and competitor use different canonical URLs.",
+      action: `Verify your canonical tag is correct:\nYour canonical: ${a.canonical}\nCompetitor canonical: ${b.canonical}\n\nMake sure your canonical points to the preferred version of this page. Incorrect canonicals can cause Google to index the wrong URL.`,
+      yourValue: a.canonical,
+      competitorValue: b.canonical,
+      impact: "Canonical tags tell Google which URL to index. An incorrect canonical can split your ranking signals across multiple URLs.",
     });
   }
 
@@ -1015,7 +1140,7 @@ export async function POST(req: NextRequest) {
       rankingComparison: {
         yourPosition: positionA,
         competitorPosition: positionB,
-        positionGap: (positionB ?? 100) - (positionA ?? 100),
+        positionGap: (positionA ?? 100) - (positionB ?? 100),
         totalResults: serpResult.totalResults,
       },
       top10Analysis,

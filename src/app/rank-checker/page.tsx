@@ -82,8 +82,8 @@ export default function RankCheckerPage() {
               </h3>
               <p className="mt-2 text-sm text-slate-500">
                 Enter a keyword and your website URL above to see where you rank
-                in Google search results. Results include top 10 positions with
-                SERP features.
+                in Google search results. Adjust the search depth to scan up to
+                100 positions with SERP features.
               </p>
               <div className="mt-6 grid grid-cols-3 gap-4">
                 <div className="rounded-lg bg-slate-50 p-3">
